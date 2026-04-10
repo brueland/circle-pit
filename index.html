@@ -7,109 +7,180 @@
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap');
-:root{--gold:#c8963a;--gold-dim:rgba(200,150,58,0.18);--panel:#1e1c18;--panel2:#252219;--border:#38342a;--text:#e8dfc8;--text-dim:#7a7060;--text-hint:#4a4438;--mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;--team-w:#c8b898;--team-b:#5a7aaa;--danger:#c85050;--heal:#58a870;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--sans);background:#111009;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 12px 32px;user-select:none;}
-h1{font-family:var(--mono);font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:18px;}
 
-/* LOBBY */
-#lobby{max-width:400px;width:100%;text-align:center;padding:28px 24px;background:var(--panel);border:1px solid var(--border);border-radius:14px;}
-#lobby h2{font-family:var(--mono);font-size:17px;letter-spacing:2px;margin-bottom:10px;}
-#lobby p{font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:20px;}
-.lobby-btns{display:flex;gap:10px;margin-bottom:20px;}
-.lbtn{flex:1;padding:13px;font-family:var(--mono);font-size:11px;letter-spacing:1px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);cursor:pointer;transition:all .2s;}
-.lbtn:hover,.lbtn.on{border-color:var(--gold);color:var(--gold);background:var(--panel);}
-#net-panel{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;text-align:left;}
-#net-panel p{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:8px;letter-spacing:.5px;}
-#net-status{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:8px;padding:6px 10px;background:var(--panel);border-radius:6px;border:1px solid var(--border);}
-#net-status.ok{color:var(--heal);border-color:var(--heal);}
-#net-status.err{color:var(--danger);border-color:var(--danger);}
-.net-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
-.net-input{flex:1;padding:7px 10px;font-family:var(--mono);font-size:11px;background:var(--panel);border:1px solid var(--border);border-radius:6px;color:var(--text);outline:none;}
-.net-input:focus{border-color:var(--gold);}
-.net-btn{padding:7px 14px;font-family:var(--mono);font-size:10px;letter-spacing:1px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text-dim);cursor:pointer;transition:all .15s;white-space:nowrap;}
-.net-btn:hover{border-color:var(--gold);color:var(--gold);}
-#room-display{font-family:var(--mono);font-size:18px;font-weight:700;letter-spacing:4px;color:var(--gold);text-align:center;padding:10px;background:var(--panel);border-radius:8px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;}
-#room-display:hover{border-color:var(--gold);}
+/* ── Design tokens ── */
+:root {
+  --gold: #c8963a; --gold-dim: rgba(200,150,58,0.18);
+  --panel: #1e1c18; --panel2: #252219; --border: #38342a;
+  --text: #e8dfc8; --text-dim: #7a7060; --text-hint: #4a4438;
+  --mono: 'Space Mono', monospace; --sans: 'DM Sans', sans-serif;
+  --team-w: #c8b898; --team-b: #5a7aaa;
+  --danger: #c85050; --heal: #58a870;
+  --trap-w: rgba(200,184,152,0.55); --trap-b: rgba(90,122,170,0.55);
+}
 
-/* SETUP */
-#setup{display:none;max-width:400px;width:100%;text-align:center;padding:28px 24px;background:var(--panel);border:1px solid var(--border);border-radius:14px;}
-#setup h2{font-family:var(--mono);font-size:17px;letter-spacing:2px;margin-bottom:10px;}
-#setup p{font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:20px;}
-.row-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;text-align:left;}
-.seg{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
-.seg button{flex:1;padding:9px 8px;font-family:var(--mono);font-size:10px;letter-spacing:1px;background:var(--panel2);border:none;color:var(--text-dim);cursor:pointer;transition:all .15s;border-right:1px solid var(--border);}
-.seg button:last-child{border-right:none;}
-.seg button.on{background:var(--panel);color:var(--text);}
-.btn-gold{width:100%;padding:13px;font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;background:transparent;border:1px solid var(--gold);border-radius:8px;color:var(--gold);cursor:pointer;transition:all .2s;margin-top:8px;}
-.btn-gold:hover{background:var(--gold-dim);}
-.cfg-adj{width:28px;height:28px;font-family:var(--mono);font-size:14px;background:var(--panel2);border:1px solid var(--border);border-radius:5px;color:var(--text);cursor:pointer;transition:all .15s;padding:0;}
-.cfg-adj:hover{border-color:var(--gold);color:var(--gold);}
-.cfg-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text);min-width:24px;text-align:center;}
-.cfg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.cfg-item{text-align:left;}
-.cfg-item .row-label{margin-bottom:6px;}
-.cfg-stepper{display:flex;align-items:center;gap:8px;}
-.cfg-check{display:flex;align-items:flex-start;gap:8px;text-align:left;cursor:pointer;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--panel2);margin-bottom:8px;transition:border-color .15s;}
-.cfg-check:hover{border-color:var(--gold);}
-.cfg-check input{margin-top:1px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;}
-.cfg-check span{font-family:var(--mono);font-size:9px;letter-spacing:.5px;color:var(--text-dim);line-height:1.6;}
-.cfg-check:has(input:checked){border-color:var(--gold);background:var(--panel);}
-.cfg-check:has(input:checked) span{color:var(--text);}
-#waiting-banner{display:none;font-family:var(--mono);font-size:10px;color:var(--text-dim);text-align:center;padding:10px;border:1px solid var(--border);border-radius:8px;margin-top:8px;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans); background: #111009; color: var(--text);
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; padding: 16px 12px 32px; user-select: none;
+}
+h1 { font-family: var(--mono); font-size: 11px; letter-spacing: 5px;
+     text-transform: uppercase; color: var(--text-dim); margin-bottom: 18px; }
 
-/* GAME */
-#game{display:none;width:100%;max-width:1100px;}
-#game-grid{display:grid;grid-template-columns:185px 1fr 185px;gap:10px;align-items:start;}
-#status-row{grid-column:1/4;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:9px 16px;gap:10px;}
-#turn-msg{font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:1px;flex:1;}
-.chips{display:flex;gap:8px;flex-wrap:wrap;}
-.chip{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:5px;background:var(--panel2);border:1px solid var(--border);color:var(--text-dim);}
-.chip b{color:var(--text);}
-#net-chip{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:5px;border:1px solid var(--border);background:var(--panel2);color:var(--text-dim);}
-#net-chip.connected{border-color:var(--heal);color:var(--heal);}
-#board-col{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-items:center;}
-#canvas-wrap{width:420px;height:420px;}
-canvas#board{width:420px;height:420px;display:block;}
-.p-col{grid-row:2;display:flex;flex-direction:column;gap:8px;}
-#col-l{grid-column:1;}
-#col-r{grid-column:3;}
-.pcard{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 11px;position:relative;overflow:hidden;transition:all .2s;}
-.pcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.pcard.tw::before{background:var(--team-w);}
-.pcard.tb::before{background:var(--team-b);}
-.pcard.active{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 4px 14px rgba(200,150,58,.15);}
-.pcard.dead{opacity:.38;filter:grayscale(.7);pointer-events:none;}
-.pname{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
-.hp-row{display:flex;gap:4px;align-items:center;margin-bottom:7px;flex-wrap:wrap;}
-.pip{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--border);transition:all .2s;}
-.pip.on-w{background:#d4c4a0;border-color:#d4c4a0;}
-.pip.on-b{background:var(--team-b);border-color:var(--team-b);}
-.dead-tag{font-family:var(--mono);font-size:9px;color:var(--danger);margin-left:5px;}
-.hand{display:flex;flex-direction:column;gap:4px;}
-.crd{font-family:var(--mono);font-size:9px;letter-spacing:.5px;padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--panel2);color:var(--text-hint);cursor:default;text-align:left;transition:all .15s;}
-.crd.play{color:var(--text);cursor:pointer;}
-.crd.play:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
-.no-cards{font-family:var(--mono);font-size:9px;color:var(--text-hint);text-align:center;padding:4px;}
-#log-row{grid-column:1/4;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;max-height:100px;overflow-y:auto;}
-#log-row::-webkit-scrollbar{width:3px;}
-#log-row::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-#log-list{font-family:var(--mono);font-size:10px;line-height:1.9;color:var(--text-dim);list-style:none;}
-#log-list li:last-child{color:var(--text);}
-.log-dmg{color:var(--danger)!important;}
-.log-heal{color:var(--heal)!important;}
-.log-reset{color:var(--gold)!important;}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;}
-.overlay.show{display:flex;}
-.mbox{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:26px 28px;min-width:260px;max-width:320px;text-align:center;}
-.mbox h3{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;}
-.mbox p{font-size:12px;color:var(--text-dim);margin-bottom:18px;line-height:1.6;}
-.mopt{display:block;width:100%;margin-bottom:7px;padding:10px 12px;font-family:var(--mono);font-size:10px;letter-spacing:1px;border-radius:7px;border:1px solid var(--border);background:var(--panel2);color:var(--text);cursor:pointer;transition:all .15s;text-align:left;}
-.mopt:hover{border-color:var(--gold);color:var(--gold);}
-#win-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-#win-overlay.show{display:flex;}
-#win-msg{font-family:var(--mono);font-size:26px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);text-align:center;}
-#win-sub{font-family:var(--mono);font-size:12px;color:var(--text-dim);letter-spacing:2px;}
+/* ── Lobby ── */
+#lobby { max-width: 560px; width: 100%; padding: 28px; background: var(--panel);
+         border: 1px solid var(--border); border-radius: 14px; text-align: center; }
+#lobby h2 { font-family: var(--mono); font-size: 17px; letter-spacing: 2px; margin-bottom: 16px; }
+.lobby-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+.lbtn { flex: 1; padding: 13px; font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+        background: var(--panel2); border: 1px solid var(--border); border-radius: 8px;
+        color: var(--text-dim); cursor: pointer; transition: all .2s; }
+.lbtn:hover, .lbtn.on { border-color: var(--gold); color: var(--gold); background: var(--panel); }
+#net-panel { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px;
+             padding: 14px; margin-bottom: 14px; text-align: left; }
+#net-status { font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+              margin-bottom: 8px; padding: 6px 10px; background: var(--panel);
+              border-radius: 6px; border: 1px solid var(--border); }
+#net-status.ok  { color: var(--heal); border-color: var(--heal); }
+#net-status.err { color: var(--danger); border-color: var(--danger); }
+.net-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.net-input { flex: 1; padding: 7px 10px; font-family: var(--mono); font-size: 11px;
+             background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+             color: var(--text); outline: none; }
+.net-input:focus { border-color: var(--gold); }
+.net-btn { padding: 7px 14px; font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+           background: transparent; border: 1px solid var(--border); border-radius: 6px;
+           color: var(--text-dim); cursor: pointer; transition: all .15s; white-space: nowrap; }
+.net-btn:hover { border-color: var(--gold); color: var(--gold); }
+#room-display { font-family: var(--mono); font-size: 18px; font-weight: 700; letter-spacing: 4px;
+                color: var(--gold); text-align: center; padding: 10px; background: var(--panel);
+                border-radius: 8px; border: 1px solid var(--border); margin-bottom: 8px; cursor: pointer; }
+#room-display:hover { border-color: var(--gold); }
+
+/* ── Setup ── */
+#setup { display: none; max-width: 400px; width: 100%; text-align: center; padding: 28px 24px;
+         background: var(--panel); border: 1px solid var(--border); border-radius: 14px; }
+#setup h2 { font-family: var(--mono); font-size: 17px; letter-spacing: 2px; margin-bottom: 10px; }
+#setup p { font-size: 12px; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; }
+.row-label { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; color: var(--text-dim);
+             text-transform: uppercase; margin-bottom: 6px; text-align: left; }
+.seg { display: flex; border: 1px solid var(--border); border-radius: 8px;
+       overflow: hidden; margin-bottom: 14px; }
+.seg button { flex: 1; padding: 9px 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+              background: var(--panel2); border: none; color: var(--text-dim); cursor: pointer;
+              transition: all .15s; border-right: 1px solid var(--border); }
+.seg button:last-child { border-right: none; }
+.seg button.on { background: var(--panel); color: var(--text); }
+.btn-gold { width: 100%; padding: 13px; font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
+            text-transform: uppercase; background: transparent; border: 1px solid var(--gold);
+            border-radius: 8px; color: var(--gold); cursor: pointer; transition: all .2s; margin-top: 8px; }
+.btn-gold:hover { background: var(--gold-dim); }
+.cfg-adj { width: 28px; height: 28px; font-family: var(--mono); font-size: 14px; background: var(--panel2);
+           border: 1px solid var(--border); border-radius: 5px; color: var(--text); cursor: pointer;
+           transition: all .15s; padding: 0; }
+.cfg-adj:hover { border-color: var(--gold); color: var(--gold); }
+.cfg-val { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--text);
+           min-width: 24px; text-align: center; }
+.cfg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.cfg-item { text-align: left; }
+.cfg-stepper { display: flex; align-items: center; gap: 8px; }
+.cfg-check { display: flex; align-items: flex-start; gap: 8px; text-align: left; cursor: pointer;
+             padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+             background: var(--panel2); margin-bottom: 8px; transition: border-color .15s; }
+.cfg-check:hover { border-color: var(--gold); }
+.cfg-check input { margin-top: 1px; accent-color: var(--gold); cursor: pointer; flex-shrink: 0; }
+.cfg-check span { font-family: var(--mono); font-size: 9px; letter-spacing: .5px;
+                  color: var(--text-dim); line-height: 1.6; }
+.cfg-check:has(input:checked) { border-color: var(--gold); background: var(--panel); }
+.cfg-check:has(input:checked) span { color: var(--text); }
+#waiting-banner { display: none; font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+                  text-align: center; padding: 10px; border: 1px solid var(--border);
+                  border-radius: 8px; margin-top: 8px; }
+
+/* ── Game layout ── */
+#game { display: none; width: 100%; max-width: 1100px; }
+#game-grid { display: grid; grid-template-columns: 185px 1fr 185px; gap: 10px; align-items: start; }
+#status-row { grid-column: 1/4; display: flex; align-items: center; justify-content: space-between;
+              flex-wrap: wrap; background: var(--panel); border: 1px solid var(--border);
+              border-radius: 10px; padding: 9px 16px; gap: 10px; }
+#turn-msg { font-family: var(--mono); font-size: 11px; color: var(--gold); letter-spacing: 1px; flex: 1; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font-family: var(--mono); font-size: 10px; padding: 3px 9px; border-radius: 5px;
+        background: var(--panel2); border: 1px solid var(--border); color: var(--text-dim); }
+.chip b { color: var(--text); }
+#net-chip { font-family: var(--mono); font-size: 10px; padding: 3px 9px; border-radius: 5px;
+            border: 1px solid var(--border); background: var(--panel2); color: var(--text-dim); }
+#net-chip.connected { border-color: var(--heal); color: var(--heal); }
+#board-col { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: center; }
+#canvas-wrap { width: 420px; height: 420px; }
+canvas#board { width: 420px; height: 420px; display: block; }
+.p-col { grid-row: 2; display: flex; flex-direction: column; gap: 8px; }
+#col-l { grid-column: 1; }
+#col-r { grid-column: 3; }
+#log-row { grid-column: 1/4; background: var(--panel); border: 1px solid var(--border);
+           border-radius: 10px; padding: 10px 14px; max-height: 100px; overflow-y: auto; }
+#log-row::-webkit-scrollbar { width: 3px; }
+#log-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+#log-list { font-family: var(--mono); font-size: 10px; line-height: 1.9;
+            color: var(--text-dim); list-style: none; }
+#log-list li:last-child { color: var(--text); }
+.log-dmg   { color: var(--danger) !important; }
+.log-heal  { color: var(--heal) !important; }
+.log-reset { color: var(--gold) !important; }
+
+/* ── Player cards ── */
+.pcard { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+         padding: 10px 11px; position: relative; overflow: hidden; transition: all .2s; }
+.pcard::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.pcard.tw::before { background: var(--team-w); }
+.pcard.tb::before { background: var(--team-b); }
+.pcard.active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 4px 14px rgba(200,150,58,.15); }
+.pcard.dead { opacity: .38; filter: grayscale(.7); pointer-events: none; }
+.pname { font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+         color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; }
+.hp-row { display: flex; gap: 4px; align-items: center; margin-bottom: 7px; flex-wrap: wrap; }
+.pip { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--border); transition: all .2s; }
+.pip.on-w { background: #d4c4a0; border-color: #d4c4a0; }
+.pip.on-b { background: var(--team-b); border-color: var(--team-b); }
+.dead-tag { font-family: var(--mono); font-size: 9px; color: var(--danger); margin-left: 5px; }
+.hand { display: flex; flex-direction: column; gap: 4px; }
+.crd { font-family: var(--mono); font-size: 9px; letter-spacing: .5px; padding: 5px 8px;
+       border-radius: 5px; border: 1px solid var(--border); background: var(--panel2);
+       color: var(--text-hint); cursor: default; text-align: left; transition: all .15s; }
+.crd.play { color: var(--text); cursor: pointer; }
+.crd.play:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.crd.trap-card { border-color: rgba(180,100,50,0.5); color: rgba(200,140,80,0.8); }
+.crd.trap-card.play:hover { border-color: #c8783a; color: #c8783a; background: rgba(200,120,58,0.12); }
+.no-cards { font-family: var(--mono); font-size: 9px; color: var(--text-hint); text-align: center; padding: 4px; }
+
+/* ── Overlays ── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75);
+           z-index: 100; align-items: center; justify-content: center; }
+.overlay.show { display: flex; }
+.mbox { background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+        padding: 26px 28px; min-width: 260px; max-width: 340px; text-align: center; }
+.mbox h3 { font-family: var(--mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+           color: var(--text-dim); margin-bottom: 8px; }
+.mbox p { font-size: 12px; color: var(--text-dim); margin-bottom: 18px; line-height: 1.6; }
+.mopt { display: block; width: 100%; margin-bottom: 7px; padding: 10px 12px; font-family: var(--mono);
+        font-size: 10px; letter-spacing: 1px; border-radius: 7px; border: 1px solid var(--border);
+        background: var(--panel2); color: var(--text); cursor: pointer; transition: all .15s; text-align: left; }
+.mopt:hover { border-color: var(--gold); color: var(--gold); }
+#win-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 200;
+               flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+#win-overlay.show { display: flex; }
+#win-msg { font-family: var(--mono); font-size: 26px; letter-spacing: 4px;
+           text-transform: uppercase; color: var(--gold); text-align: center; }
+#win-sub { font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: 2px; }
+
+/* Trap placement mode */
+canvas#board.placing-trap { cursor: crosshair; }
+#trap-hint { display: none; font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+             color: rgba(200,140,80,0.9); text-align: center; padding: 6px 10px;
+             border: 1px solid rgba(200,140,80,0.4); border-radius: 6px;
+             background: rgba(200,120,58,0.08); margin-top: 6px; }
+#trap-hint.show { display: block; }
 </style>
 </head>
 <body>
@@ -117,29 +188,63 @@ canvas#board{width:420px;height:420px;display:block;}
 
 <!-- LOBBY -->
 <div id="lobby">
-  <h2>Play</h2>
-  <p>Pass and play locally, or connect online with a friend using a room code — no account needed.</p>
+  <h2>Circle Card Game</h2>
+  <div style="text-align:left;margin-bottom:20px">
+    <p style="color:var(--text);font-size:12px;line-height:1.8;margin-bottom:14px">6 players sit around a circular board divided into two halves — <span style="color:var(--team-w)">White team</span> (top: WL, WC, WR) and <span style="color:var(--team-b)">Black team</span> (bottom: BL, BC, BR). Each player owns one sector. A token starts at center, randomly colored white or black each round.</p>
+
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:6px;text-transform:uppercase">Turn Order</div>
+    <p style="font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:14px">WC↔BC · WL↔BL · WR↔BR. The first player in each pair plays, then their opposite responds. Pairs cycle until all cards are gone or the token exits the board.</p>
+
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:6px;text-transform:uppercase">Cards</div>
+    <p style="font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:6px">Each player draws cards per round from a shared deck. Movement is always <b style="color:var(--text)">radial from your perspective</b> — OUT pushes away, IN pulls toward you.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">⬆⬆ OUT2 — push 2 rings away</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">⬇⬇ IN2 — pull 2 rings toward</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">⬆↻ OUT1CW — out 1 + rotate CW</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">⬆↺ OUT1CCW — out 1 + rotate CCW</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">⬇↻ IN1CW — in 1 + rotate CW</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">⬇↺ IN1CCW — in 1 + rotate CCW</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">↺↻ SIDE2 — slide 2 sectors CW or CCW</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">✦ CHOICE — move 1 step in any direction</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">⇄ COLORSWAP — flip token color</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border)">✦✦ DRAW2 — draw 2 cards, skip move</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid var(--border);grid-column:1/-1">⚑ TRAP — place on a sector; triggers hit effect when token lands there (once)</div>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:6px;text-transform:uppercase">Hitting &amp; HP</div>
+    <p style="font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:14px">Token crossing the outer ring hits that sector's player. Token color matches team → heal 1 HP. Doesn't match → 1 damage. Traps trigger the same effect mid-board without ending the round.</p>
+
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:6px;text-transform:uppercase">Optional Rules</div>
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.9">
+      <div>◆ <b style="color:var(--text)">1v5 FFA</b> — all 6 compete individually</div>
+      <div>◆ <b style="color:var(--text)">Sector turn order</b> — next to play is whoever owns the token's current sector</div>
+      <div>◆ <b style="color:var(--text)">Center flip</b> — token landing at center flips its color</div>
+      <div>◆ <b style="color:var(--text)">Configurable HP &amp; hand size</b> — 1–5 each</div>
+    </div>
+  </div>
+
+  <div style="font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px">How to play</div>
   <div class="lobby-btns">
     <button class="lbtn on" id="btn-local" onclick="setNetMode('local')">Local</button>
-    <button class="lbtn"    id="btn-host"  onclick="setNetMode('host')">Host Online</button>
-    <button class="lbtn"    id="btn-join"  onclick="setNetMode('join')">Join Online</button>
+    <button class="lbtn"   id="btn-host"  onclick="setNetMode('host')">Host Online</button>
+    <button class="lbtn"   id="btn-join"  onclick="setNetMode('join')">Join Online</button>
   </div>
   <div id="net-panel" style="display:none">
     <div id="net-status">Initialising…</div>
     <div id="host-ui" style="display:none">
-      <p>Share this room code with your friend:</p>
+      <p style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:8px">Share this room code:</p>
       <div id="room-display" title="Click to copy" onclick="copyRoom()">——</div>
       <div style="font-family:var(--mono);font-size:9px;color:var(--text-dim);text-align:center">click to copy · waiting for opponent…</div>
     </div>
     <div id="join-ui" style="display:none">
-      <p>Enter the host's room code:</p>
+      <p style="font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:8px">Enter the host's room code:</p>
       <div class="net-row">
         <input class="net-input" id="join-code" placeholder="ROOM CODE" maxlength="8" style="text-transform:uppercase;letter-spacing:3px">
         <button class="net-btn" onclick="joinRoom()">Connect</button>
       </div>
     </div>
   </div>
-  <button class="btn-gold" id="lobby-next" onclick="goToSetup()">Continue →</button>
+  <button class="btn-gold" id="lobby-next" onclick="goToSetup()">Configure &amp; Play →</button>
 </div>
 
 <!-- SETUP -->
@@ -149,7 +254,7 @@ canvas#board{width:420px;height:420px;display:block;}
   <div class="row-label" style="margin-bottom:10px">Which team are you?</div>
   <div class="seg" id="team-seg">
     <button class="on" onclick="pickTeam('WHITE',this)">⬜ White Team</button>
-    <button            onclick="pickTeam('BLACK',this)">⬛ Black Team</button>
+    <button             onclick="pickTeam('BLACK',this)">⬛ Black Team</button>
   </div>
   <div class="cfg-row">
     <div class="cfg-item">
@@ -171,18 +276,12 @@ canvas#board{width:420px;height:420px;display:block;}
       </div>
     </div>
   </div>
-  <label class="cfg-check">
-    <input type="checkbox" id="cfg-1v5">
-    <span>1v5 Free-for-all — all 6 compete individually. Last player standing wins.</span>
-  </label>
-  <label class="cfg-check">
-    <input type="checkbox" id="cfg-sector-order">
-    <span>Sector turn order — next to play is whoever owns the token's sector. Draw a card when it leaves.</span>
-  </label>
-  <label class="cfg-check">
-    <input type="checkbox" id="cfg-center-flip">
-    <span>Center flip — token landing at center flips its color (WHITE↔BLACK).</span>
-  </label>
+  <label class="cfg-check"><input type="checkbox" id="cfg-1v5">
+    <span>1v5 Free-for-all — all 6 compete individually. Last player standing wins.</span></label>
+  <label class="cfg-check"><input type="checkbox" id="cfg-sector-order">
+    <span>Sector turn order — next to play is whoever owns the token's sector. Draw a card when it leaves.</span></label>
+  <label class="cfg-check"><input type="checkbox" id="cfg-center-flip">
+    <span>Center flip — token landing at center flips its color (WHITE↔BLACK).</span></label>
   <button class="btn-gold" id="start-btn" onclick="startGame()">Start Game</button>
   <div id="waiting-banner">Waiting for opponent to confirm settings…</div>
 </div>
@@ -206,6 +305,7 @@ canvas#board{width:420px;height:420px;display:block;}
     </div>
     <div id="board-col">
       <div id="canvas-wrap"><canvas id="board" width="840" height="840"></canvas></div>
+      <div id="trap-hint">⚑ Click any cell (sector × ring) to place your trap — Esc to cancel</div>
     </div>
     <div class="p-col" id="col-r">
       <div class="pcard" id="pc-3"></div>
@@ -216,14 +316,29 @@ canvas#board{width:420px;height:420px;display:block;}
   </div>
 </div>
 
+<!-- SIDE2 direction picker -->
 <div class="overlay" id="ov-side">
   <div class="mbox">
     <h3>SIDE 2 — Direction</h3>
     <p>Move 2 sectors around the ring. Fizzles at center.</p>
-    <button class="mopt" onmouseenter="setHoverSide('ccw')" onmouseleave="setHoverSide(null)" onclick="resolveSide('ccw')">↺ Counter-clockwise (CCW) × 2</button>
-    <button class="mopt" onmouseenter="setHoverSide('cw')"  onmouseleave="setHoverSide(null)" onclick="resolveSide('cw')">↻ Clockwise (CW) × 2</button>
+    <button class="mopt" onmouseenter="setHoverSide('ccw')" onmouseleave="setHoverSide(null)" onclick="resolvePending('ccw')">↺ Counter-clockwise (CCW) × 2</button>
+    <button class="mopt" onmouseenter="setHoverSide('cw')"  onmouseleave="setHoverSide(null)" onclick="resolvePending('cw')">↻ Clockwise (CW) × 2</button>
   </div>
 </div>
+
+<!-- CHOICE direction picker -->
+<div class="overlay" id="ov-choice">
+  <div class="mbox">
+    <h3>CHOICE — Direction</h3>
+    <p>Move the token 1 step in any direction.</p>
+    <button class="mopt" onmouseenter="setHoverChoice('out')"   onmouseleave="setHoverSide(null)" onclick="resolvePending('out')">⬆ OUT 1 — push away</button>
+    <button class="mopt" onmouseenter="setHoverChoice('in')"    onmouseleave="setHoverSide(null)" onclick="resolvePending('in')">⬇ IN 1 — pull toward</button>
+    <button class="mopt" onmouseenter="setHoverChoice('cw')"    onmouseleave="setHoverSide(null)" onclick="resolvePending('cw')">↻ ROTATE CW 1 (fizzles at center)</button>
+    <button class="mopt" onmouseenter="setHoverChoice('ccw')"   onmouseleave="setHoverSide(null)" onclick="resolvePending('ccw')">↺ ROTATE CCW 1 (fizzles at center)</button>
+  </div>
+</div>
+
+
 <div id="win-overlay">
   <div id="win-msg"></div>
   <div id="win-sub"></div>
@@ -231,561 +346,897 @@ canvas#board{width:420px;height:420px;display:block;}
 </div>
 
 <script>
-// ════════════════════════════════════════════════
-// CONSTANTS
-// ════════════════════════════════════════════════
-const CARD_ICONS={OUT2:'⬆⬆',IN2:'⬇⬇',OUT1CW:'⬆↻',OUT1CCW:'⬆↺',IN1CW:'⬇↻',IN1CCW:'⬇↺',SIDE2:'↺↻'};
-const CARD_DESC={OUT2:'Push 2 rings away',IN2:'Pull 2 rings toward',OUT1CW:'Out 1 + CW 1',OUT1CCW:'Out 1 + CCW 1',IN1CW:'In 1 + CW 1',IN1CCW:'In 1 + CCW 1',SIDE2:'Slide 2 sectors CW or CCW'};
-const RING_LABELS=['CENTER','INNER','MIDDLE','OUTER'];
-const DECK=['OUT2','IN2','OUT1CW','OUT1CCW','IN1CW','IN1CCW','SIDE2'];
-const SECTORS={WL:{angle:300,team:'WHITE',sec:6},WC:{angle:0,team:'WHITE',sec:1},WR:{angle:60,team:'WHITE',sec:2},BL:{angle:120,team:'BLACK',sec:3},BC:{angle:180,team:'BLACK',sec:4},BR:{angle:240,team:'BLACK',sec:5}};
-const SEC_ANGLE={1:0,2:60,3:120,4:180,5:240,6:300};
-const OPP_SEC={1:4,4:1,2:5,5:2,3:6,6:3};
-const CW_RING=[1,2,3,4,5,6];
-const WHITE_SECS=new Set([1,2,6]);
-const BLACK_SECS=new Set([3,4,5]);
-const PANEL_ORDER=['WL','WC','WR','BL','BC','BR'];
-const TURN_PAIRS=[['WC','BC'],['WL','BL'],['WR','BR']];
-function secCW(s){return CW_RING[(CW_RING.indexOf(s)+1)%6];}
-function secCCW(s){return CW_RING[(CW_RING.indexOf(s)+5)%6];}
-function toRad(deg){return(deg-90)*Math.PI/180;}
+// ═══════════════════════════════════════════════════════
+// BOARD CONSTANTS
+// ═══════════════════════════════════════════════════════
+const RING_LABELS = ['CENTER','INNER','MIDDLE','OUTER'];
+const SECTORS     = {WL:{angle:300,team:'WHITE',sec:6},WC:{angle:0,team:'WHITE',sec:1},
+                     WR:{angle:60,team:'WHITE',sec:2},BL:{angle:120,team:'BLACK',sec:3},
+                     BC:{angle:180,team:'BLACK',sec:4},BR:{angle:240,team:'BLACK',sec:5}};
+const SEC_ANGLE   = {1:0,2:60,3:120,4:180,5:240,6:300};
+const OPP_SEC     = {1:4,4:1,2:5,5:2,3:6,6:3};
+const CW_RING     = [1,2,3,4,5,6];
+const WHITE_SECS  = new Set([1,2,6]);
+const BLACK_SECS  = new Set([3,4,5]);
+const PANEL_ORDER = ['WL','WC','WR','BL','BC','BR'];
+const TURN_PAIRS  = [['WC','BC'],['WL','BL'],['WR','BR']];
 
-// ════════════════════════════════════════════════
+function secCW(s)  { return CW_RING[(CW_RING.indexOf(s)+1)%6]; }
+function secCCW(s) { return CW_RING[(CW_RING.indexOf(s)+5)%6]; }
+function toRad(deg){ return (deg-90)*Math.PI/180; }
+
+// ═══════════════════════════════════════════════════════
+// CARD DEFINITIONS
+// Add new cards here — no changes needed elsewhere.
+//
+// Each entry: { icon, desc, needsDialog, onPlay, simulate }
+//   needsDialog: (state,pName) => bool  — return true to open a picker instead of auto-executing
+//   onPlay:      (state,pName,extra)    — mutates state; extra = dialog resolution value
+//   simulate:    (state,pName,extra)    — returns {tokenRing,tokenSec} snapshot for hover preview
+//                                         (defaults to running onPlay on a clone if omitted)
+// ═══════════════════════════════════════════════════════
+const CARDS = {
+
+  OUT2: {
+    icon: '⬆⬆', desc: 'Push 2 rings away',
+    onPlay(s,p)    { radialDelta(s,p,+2); },
+  },
+  IN2: {
+    icon: '⬇⬇', desc: 'Pull 2 rings toward',
+    onPlay(s,p)    { radialDelta(s,p,-2); },
+  },
+  OUT1CW: {
+    icon: '⬆↻', desc: 'Out 1 + rotate CW',
+    onPlay(s,p)    { radialDelta(s,p,+1); if(s.tokenRing>0) s.tokenSec=secCW(s.tokenSec); },
+  },
+  OUT1CCW: {
+    icon: '⬆↺', desc: 'Out 1 + rotate CCW',
+    onPlay(s,p)    { radialDelta(s,p,+1); if(s.tokenRing>0) s.tokenSec=secCCW(s.tokenSec); },
+  },
+  IN1CW: {
+    icon: '⬇↻', desc: 'In 1 + rotate CW',
+    onPlay(s,p)    { radialDelta(s,p,-1); if(s.tokenRing>0) s.tokenSec=secCW(s.tokenSec); },
+  },
+  IN1CCW: {
+    icon: '⬇↺', desc: 'In 1 + rotate CCW',
+    onPlay(s,p)    { radialDelta(s,p,-1); if(s.tokenRing>0) s.tokenSec=secCCW(s.tokenSec); },
+  },
+  SIDE2: {
+    icon: '↺↻', desc: 'Slide 2 sectors CW or CCW (fizzles at center)',
+    needsDialog: (s) => s.tokenRing > 0,  // show dialog; if at center, let onPlay fizzle
+    onPlay(s,p,dir) {
+      if(s.tokenRing===0) return; // fizzle
+      const fn = dir==='cw' ? secCW : secCCW;
+      s.tokenSec = fn(fn(s.tokenSec));
+    },
+    simulate(s,p,dir) {
+      if(!dir) return {tokenRing:s.tokenRing, tokenSec:s.tokenSec};
+      const ns = clonePos(s);
+      CARDS.SIDE2.onPlay(ns,p,dir);
+      return ns;
+    },
+  },
+
+  // ── New cards ────────────────────────────────────────
+
+  CHOICE: {
+    icon: '✦', desc: 'Move token 1 step in any direction (your choice)',
+    needsDialog: () => true,
+    onPlay(s, p, dir) {
+      if (!dir) return;
+      if (dir==='out')      { radialDelta(s, p, +1); }
+      else if (dir==='in')  { radialDelta(s, p, -1); }
+      else if (dir==='cw')  { if(s.tokenRing>0) s.tokenSec = secCW(s.tokenSec); }
+      else if (dir==='ccw') { if(s.tokenRing>0) s.tokenSec = secCCW(s.tokenSec); }
+    },
+    simulate(s, p, dir) {
+      if (!dir) return clonePos(s);
+      const ns = clonePos(s);
+      CARDS.CHOICE.onPlay(ns, p, dir);
+      return ns;
+    },
+  },
+
+  COLORSWAP: {
+    icon: '⇄', desc: 'Flip the token color (WHITE↔BLACK)',
+    onPlay(s, p) {
+      s.tokenColor = s.tokenColor==='BLACK' ? 'WHITE' : 'BLACK';
+    },
+    simulate(s) { return clonePos(s); }, // token doesn't move
+  },
+
+  DRAW2: {
+    icon: '✦✦', desc: 'Draw 2 cards — skip movement this turn',
+    onPlay(s, p) {
+      // Drawing is handled in executeCard after onPlay; flag via marker
+      s._draw2Player = p;
+    },
+    simulate(s) { return clonePos(s); },
+  },
+
+  TRAP: {
+    icon: '⚑', desc: 'Place a trap on any cell — token landing there hits the mover (token color vs trap color)',
+    needsDialog: () => true,
+    // extra = {sec, ring} from board click
+    onPlay(s, p, cell) {
+      if (!cell) return;
+      if (!s.traps) s.traps = {};
+      const key = `${cell.sec}:${cell.ring}`;
+      // trapColor is the placing player's team — determines heal/damage when triggered
+      s.traps[key] = { owner: p, trapColor: G.players[p].team, sec: cell.sec, ring: cell.ring };
+    },
+    simulate(s) { return clonePos(s); },
+  },
+};
+
+// Helper: flat deck array derived from CARDS
+function buildDeck() { return Object.keys(CARDS); }
+const DECK = buildDeck();
+
+// ═══════════════════════════════════════════════════════
 // NETWORKING (PeerJS)
-// ════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 let peer=null, conn=null, netMode='local', isHost=false;
 
-function setNetMode(mode){
-  netMode=mode;
-  ['local','host','join'].forEach(m=>document.getElementById('btn-'+m).classList.toggle('on',m===mode));
-  const panel=document.getElementById('net-panel');
-  panel.style.display=mode==='local'?'none':'block';
-  document.getElementById('host-ui').style.display=mode==='host'?'block':'none';
-  document.getElementById('join-ui').style.display=mode==='join'?'block':'none';
+function setNetMode(mode) {
+  netMode = mode;
+  ['local','host','join'].forEach(m => document.getElementById('btn-'+m).classList.toggle('on',m===mode));
+  document.getElementById('net-panel').style.display   = mode==='local' ? 'none'  : 'block';
+  document.getElementById('host-ui').style.display     = mode==='host'  ? 'block' : 'none';
+  document.getElementById('join-ui').style.display     = mode==='join'  ? 'block' : 'none';
   if(mode==='host') initHost();
-  if(mode==='join') document.getElementById('net-status').textContent='Enter room code above.';
+  if(mode==='join') document.getElementById('net-status').textContent = 'Enter room code above.';
 }
 
-function genCode(){
+function genCode() {
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let c=''; for(let i=0;i<6;i++) c+=chars[Math.floor(Math.random()*chars.length)];
   return c;
 }
 
-function initHost(){
-  const code=genCode();
+function initHost() {
+  const code = genCode();
   setStatus('Creating room…');
-  peer=new Peer(code,{debug:0});
-  peer.on('open',id=>{
-    document.getElementById('room-display').textContent=id;
-    setStatus('Room ready — waiting for opponent');
-    isHost=true;
-  });
-  peer.on('connection',c=>{
-    conn=c;
-    setupConn();
-    setStatus('Opponent connected! ✓','ok');
-    // Auto-advance host to setup screen
-    document.getElementById('lobby').style.display='none';
-    document.getElementById('setup').style.display='block';
-  });
-  peer.on('error',e=>setStatus('Error: '+e.type,'err'));
+  peer = new Peer(code,{debug:0});
+  peer.on('open', id => { document.getElementById('room-display').textContent=id; setStatus('Room ready — waiting for opponent'); isHost=true; });
+  peer.on('connection', c => { conn=c; setupConn(); setStatus('Opponent connected! ✓','ok');
+    document.getElementById('lobby').style.display='none'; document.getElementById('setup').style.display='block'; });
+  peer.on('error', e => setStatus('Error: '+e.type,'err'));
 }
 
-function joinRoom(){
-  const code=document.getElementById('join-code').value.trim().toUpperCase();
-  if(!code){setStatus('Enter a room code','err');return;}
+function joinRoom() {
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  if(!code){ setStatus('Enter a room code','err'); return; }
   setStatus('Connecting to '+code+'…');
-  peer=new Peer(undefined,{debug:0});
-  peer.on('open',()=>{
-    conn=peer.connect(code);
-    setupConn();
-  });
-  peer.on('error',e=>setStatus('Error: '+e.type,'err'));
+  peer = new Peer(undefined,{debug:0});
+  peer.on('open', () => { conn=peer.connect(code); setupConn(); });
+  peer.on('error', e => setStatus('Error: '+e.type,'err'));
 }
 
-function setupConn(){
-  conn.on('open',()=>{
+function setupConn() {
+  conn.on('open', () => {
     setStatus('Connected ✓','ok');
     document.getElementById('net-chip').textContent='ONLINE ✓';
     document.getElementById('net-chip').classList.add('connected');
-    // If we're the joiner, auto-advance to the waiting screen immediately
     if(!isHost){
       document.getElementById('lobby').style.display='none';
       document.getElementById('setup').style.display='block';
       document.getElementById('start-btn').style.display='none';
       document.getElementById('waiting-banner').style.display='block';
-      // Hide all config controls — joiner just waits for host to start
       document.querySelectorAll('.cfg-row,.cfg-check').forEach(el=>el.style.display='none');
       document.getElementById('team-seg').style.display='flex';
-      document.querySelector('#setup p').textContent='Connected! Waiting for host to start the game…';
+      document.querySelector('#setup p').textContent='Connected! Waiting for host to start…';
     }
   });
-  conn.on('data',onNetData);
-  conn.on('close',()=>setStatus('Connection closed','err'));
-  conn.on('error',e=>setStatus('Conn error','err'));
+  conn.on('data',  onNetData);
+  conn.on('close', () => setStatus('Connection closed','err'));
+  conn.on('error', () => setStatus('Conn error','err'));
 }
 
-function setStatus(msg,cls=''){
-  const el=document.getElementById('net-status');
+function setStatus(msg,cls='') {
+  const el = document.getElementById('net-status');
   el.textContent=msg; el.className=cls;
 }
-
-function copyRoom(){
-  const code=document.getElementById('room-display').textContent;
+function copyRoom() {
+  const code = document.getElementById('room-display').textContent;
   navigator.clipboard?.writeText(code).then(()=>setStatus('Copied: '+code,'ok'));
 }
+function send(msg) { if(conn&&conn.open) conn.send(JSON.stringify(msg)); }
+function broadcastState(type) { send({type, state:JSON.parse(JSON.stringify(G)), cfg:CFG}); }
 
-function send(msg){
-  if(conn && conn.open) conn.send(JSON.stringify(msg));
-}
-
-function onNetData(raw){
-  const msg=JSON.parse(raw);
-  if(msg.type==='start'){
-    // Remote started game — apply their config and state
+function onNetData(raw) {
+  const msg = JSON.parse(raw);
+  if(msg.type==='start') {
     CFG=msg.cfg; G=msg.state;
     document.getElementById('setup').style.display='none';
     document.getElementById('game').style.display='block';
     initCanvas(); render(); advanceTurn();
-    log(`Game started (synced from host)`,'log-reset');
-  } else if(msg.type==='move'){
-    // Remote played a card — apply and re-render
+    log('Game started (synced from host)','log-reset');
+  } else if(msg.type==='move' || msg.type==='side') {
     G=msg.state;
     animToken(); render();
-    if(G.gameOver) showWin();
-    else advanceTurn();
-  } else if(msg.type==='side'){
-    G=msg.state;
-    animToken(); render();
-    if(G.gameOver) showWin();
-    else advanceTurn();
+    if(G.gameOver) showWin(); else advanceTurn();
   }
 }
 
-function broadcastState(type){
-  send({type, state:JSON.parse(JSON.stringify(G)), cfg:CFG});
-}
+// ═══════════════════════════════════════════════════════
+// LOBBY / SETUP
+// ═══════════════════════════════════════════════════════
+let myTeam = 'WHITE';
+let CFG = {hp:2, cards:2, mode:'3v3', turnOrder:'pairs', centerFlip:false};
 
-// ════════════════════════════════════════════════
-// LOBBY / SETUP FLOW
-// ════════════════════════════════════════════════
-let myTeam='WHITE';
-let CFG={hp:2,cards:2,mode:'3v3',turnOrder:'pairs',centerFlip:false};
-
-function goToSetup(){
-  if(netMode==='join'){
-    // Joiner advances automatically on connect — if they click Continue before connecting, tell them to wait
-    if(!conn) { alert('Enter the room code and connect first.'); return; }
-    // Already auto-advanced on connect; this is a no-op
-    return;
-  }
-  if(netMode==='host' && !conn){
-    alert('Waiting for opponent to join. Share the room code first.');
-    return;
-  }
+function goToSetup() {
+  if(netMode==='join'){ if(!conn){alert('Connect first.'); return;} return; }
+  if(netMode==='host' && !conn){ alert('Share the room code first.'); return; }
   document.getElementById('lobby').style.display='none';
   document.getElementById('setup').style.display='block';
 }
-
-function adjCfg(key,delta){
-  const el=document.getElementById('val-'+key),disp=document.getElementById('disp-'+key);
-  let v=Math.max(1,Math.min(5,parseInt(el.value)+delta));
-  el.value=v;disp.textContent=v;
+function adjCfg(key,delta) {
+  const el=document.getElementById('val-'+key), disp=document.getElementById('disp-'+key);
+  const v=Math.max(1,Math.min(5,parseInt(el.value)+delta));
+  el.value=v; disp.textContent=v;
 }
-function pickTeam(val,btn){myTeam=val;document.querySelectorAll('#team-seg button').forEach(b=>b.classList.toggle('on',b===btn));}
-
-function startGame(){
-  CFG.hp=parseInt(document.getElementById('val-hp').value)||2;
-  CFG.cards=parseInt(document.getElementById('val-cards').value)||2;
-  CFG.mode=document.getElementById('cfg-1v5').checked?'1v5':'3v3';
-  CFG.turnOrder=document.getElementById('cfg-sector-order').checked?'sector':'pairs';
-  CFG.centerFlip=document.getElementById('cfg-center-flip').checked;
-  G=newGameState();
+function pickTeam(val,btn) {
+  myTeam=val;
+  document.querySelectorAll('#team-seg button').forEach(b=>b.classList.toggle('on',b===btn));
+}
+function startGame() {
+  CFG.hp         = parseInt(document.getElementById('val-hp').value)||2;
+  CFG.cards      = parseInt(document.getElementById('val-cards').value)||2;
+  CFG.mode       = document.getElementById('cfg-1v5').checked ? '1v5' : '3v3';
+  CFG.turnOrder  = document.getElementById('cfg-sector-order').checked ? 'sector' : 'pairs';
+  CFG.centerFlip = document.getElementById('cfg-center-flip').checked;
+  G = newGameState();
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='block';
   initCanvas();
-  const modeStr=CFG.mode==='1v5'?'1v5 FFA':'3v3';
-  log(`Game started! Token:${G.tokenColor} HP:${CFG.hp} Cards:${CFG.cards} ${modeStr}${CFG.centerFlip?' +CenterFlip':''}${netMode!=='local'?' [ONLINE]':''}`, 'log-reset');
+  log(`Game started! Token:${G.tokenColor} HP:${CFG.hp} Cards:${CFG.cards} Mode:${CFG.mode}${CFG.centerFlip?' +CenterFlip':''}${netMode!=='local'?' [ONLINE]':''}`, 'log-reset');
   if(netMode!=='local') broadcastState('start');
   render(); advanceTurn();
 }
 
-// ════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // GAME STATE
-// ════════════════════════════════════════════════
-let G=null, pendingCard=null, hoverCard=null, hoverSideDir=null;
+// ═══════════════════════════════════════════════════════
+let G = null, pendingCard = null, hoverCard = null, hoverSideDir = null;
+let trapPlacingMode = null; // {playerName} when waiting for board click to place trap
+let hoverTrapSec = null;    // sector being hovered during trap placement
 
-function rndCards(n){
+function rndCards(n) {
   const pool=[];
   while(pool.length<Math.max(n,DECK.length)) for(const c of DECK) pool.push(c);
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
   return pool.slice(0,n);
 }
 
-function newGameState(){
+function newGameState() {
   const players={};
-  for(const[name,def]of Object.entries(SECTORS))
-    players[name]={hp:CFG.hp,alive:true,hand:rndCards(CFG.cards),team:def.team,sec:def.sec};
-  return{players,tokenRing:0,tokenSec:0,tokenColor:Math.random()<.5?'BLACK':'WHITE',
-         pairIdx:0,subTurn:0,gameOver:false,winner:null,currentSectorPlayer:null};
+  for(const [name,def] of Object.entries(SECTORS))
+    players[name] = {hp:CFG.hp, alive:true, hand:rndCards(CFG.cards), team:def.team, sec:def.sec};
+  return {players, tokenRing:0, tokenSec:0, tokenColor:Math.random()<.5?'BLACK':'WHITE',
+          pairIdx:0, subTurn:0, gameOver:false, winner:null, currentSectorPlayer:null, traps:{}};
 }
 
-// ════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // CARD MECHANICS
-// signed ring from active player's perspective:
-//   +signed = opponent side (away/OUT direction)
-//   -signed = own side (toward/IN direction)
-// ════════════════════════════════════════════════
-function _applyCardToState(state,playerName,card,sideDir){
-  const p=G.players[playerName],team=p.team;
-  if(state.tokenRing===0) state.tokenSec=p.sec;
-  const ownSecs=team==='WHITE'?WHITE_SECS:BLACK_SECS;
-  const inOppHalf=!ownSecs.has(state.tokenSec);
-  let signed=inOppHalf?state.tokenRing:-state.tokenRing;
-  function applyDelta(d){
-    const was=inOppHalf; signed+=d;
-    if(signed>0){state.tokenRing=signed; if(!was)state.tokenSec=OPP_SEC[state.tokenSec];}
-    else if(signed<0){state.tokenRing=-signed; if(was)state.tokenSec=OPP_SEC[state.tokenSec];}
-    else{state.tokenRing=0;state.tokenSec=0;}
-  }
-  if(card==='OUT2')    applyDelta(+2);
-  else if(card==='IN2')    applyDelta(-2);
-  else if(card==='OUT1CW') {applyDelta(+1);if(state.tokenRing>0)state.tokenSec=secCW(state.tokenSec);}
-  else if(card==='OUT1CCW'){applyDelta(+1);if(state.tokenRing>0)state.tokenSec=secCCW(state.tokenSec);}
-  else if(card==='IN1CW')  {applyDelta(-1);if(state.tokenRing>0)state.tokenSec=secCW(state.tokenSec);}
-  else if(card==='IN1CCW') {applyDelta(-1);if(state.tokenRing>0)state.tokenSec=secCCW(state.tokenSec);}
-  else if(card==='SIDE2'){if(state.tokenRing===0)return;const fn=sideDir==='cw'?secCW:secCCW;state.tokenSec=fn(fn(state.tokenSec));}
-}
-function simulateCard(pn,card,sideDir){const s={tokenRing:G.tokenRing,tokenSec:G.tokenSec};_applyCardToState(s,pn,card,sideDir);return s;}
-function applyCard(pn,card,sideDir){
-  _applyCardToState(G,pn,card,sideDir);
-  const h=G.players[pn].hand,i=h.indexOf(card);if(i!==-1)h.splice(i,1);
+// ═══════════════════════════════════════════════════════
+
+// Clone just the position fields used for simulation/preview
+function clonePos(s) { return {tokenRing:s.tokenRing, tokenSec:s.tokenSec, tokenColor:s.tokenColor}; }
+
+// Radial movement helper (shared by multiple cards)
+// delta > 0 = OUT (away from player), delta < 0 = IN (toward player)
+function radialDelta(state, playerName, delta) {
+  const p = G.players[playerName];
+  if(state.tokenRing===0) state.tokenSec = p.sec;
+  const ownSecs = p.team==='WHITE' ? WHITE_SECS : BLACK_SECS;
+  const inOppHalf = !ownSecs.has(state.tokenSec);
+  let signed = inOppHalf ? state.tokenRing : -state.tokenRing;
+  const wasInOpp = inOppHalf;
+  signed += delta;
+  if(signed>0)      { state.tokenRing=signed;  if(!wasInOpp) state.tokenSec=OPP_SEC[state.tokenSec]; }
+  else if(signed<0) { state.tokenRing=-signed; if(wasInOpp)  state.tokenSec=OPP_SEC[state.tokenSec]; }
+  else              { state.tokenRing=0; state.tokenSec=0; }
 }
 
-// ════════════════════════════════════════════════
-// TURN ENGINE — fixed card exhaustion skip
-// ════════════════════════════════════════════════
-function currentPlayerName(){
-  if(CFG.turnOrder==='sector') return G.currentSectorPlayer||_findSectorPlayer();
+function simulateCard(pName, card, extra) {
+  const def = CARDS[card];
+  if(!def) return clonePos(G);
+  if(def.simulate) return def.simulate(clonePos(G), pName, extra);
+  // Default: clone and run onPlay
+  const s = clonePos(G);
+  def.onPlay(s, pName, extra);
+  return s;
+}
+
+function removeCardFromHand(pName, card) {
+  const h=G.players[pName].hand, i=h.indexOf(card);
+  if(i!==-1) h.splice(i,1);
+}
+
+// ═══════════════════════════════════════════════════════
+// TURN ENGINE
+// ═══════════════════════════════════════════════════════
+function currentPlayerName() {
+  if(CFG.turnOrder==='sector') return G.currentSectorPlayer || _findSectorPlayer();
   return TURN_PAIRS[G.pairIdx][G.subTurn];
 }
-
-function _findSectorPlayer(){
+function _findSectorPlayer() {
   if(G.tokenSec===0) return TURN_PAIRS[G.pairIdx][G.subTurn];
-  for(const[nm,p]of Object.entries(G.players))
-    if(p.sec===G.tokenSec&&p.alive&&p.hand.length>0) return nm;
-  // Sector occupied but player has no cards — fall back to pair order
+  for(const [nm,p] of Object.entries(G.players))
+    if(p.sec===G.tokenSec && p.alive && p.hand.length>0) return nm;
   return TURN_PAIRS[G.pairIdx][G.subTurn];
 }
+function canPlay(nm) { const p=G.players[nm]; return p.alive && p.hand.length>0; }
 
-function canPlay(nm){const p=G.players[nm];return p.alive&&p.hand.length>0;}
-
-function advanceTurn(){
-  if(G.gameOver)return;
-  // Check if everyone who is alive has no cards → new round
-  const alivePlayers=Object.values(G.players).filter(p=>p.alive);
-  if(alivePlayers.length>0 && alivePlayers.every(p=>p.hand.length===0)){
-    log('All cards exhausted — new round','log-reset');
-    startNewRound();
-    return;
-  }
+function advanceTurn() {
+  if(G.gameOver) return;
+  const alive = Object.values(G.players).filter(p=>p.alive);
+  if(alive.length>0 && alive.every(p=>p.hand.length===0)){ log('All cards exhausted — new round','log-reset'); startNewRound(); return; }
   if(CFG.turnOrder==='sector'){
-    G.currentSectorPlayer=_findSectorPlayer();
-    // If this player can't play, step the fallback pair and retry
+    G.currentSectorPlayer = _findSectorPlayer();
     let safety=0;
-    while(safety++<12&&!canPlay(G.currentSectorPlayer)){
+    while(safety++<12 && !canPlay(G.currentSectorPlayer)){
       const nm=G.currentSectorPlayer;
-      log(!G.players[nm].alive?`${nm} eliminated — skip`:`${nm} no cards — skip`);
+      log(!G.players[nm].alive ? `${nm} eliminated — skip` : `${nm} no cards — skip`);
       stepPairIdx();
-      G.currentSectorPlayer=_findSectorPlayer();
-      if(G.gameOver)return;
+      G.currentSectorPlayer = _findSectorPlayer();
+      if(G.gameOver) return;
     }
   } else {
-    // Skip any players who can't play, looping through all slots
-    let checked=0,total=TURN_PAIRS.length*2;
-    while(checked<total&&!canPlay(currentPlayerName())){
+    let checked=0, total=TURN_PAIRS.length*2;
+    while(checked<total && !canPlay(currentPlayerName())){
       const nm=currentPlayerName();
-      log(!G.players[nm].alive?`${nm} eliminated — skip`:`${nm} no cards — skip`);
-      stepSubRaw();
-      checked++;
-      if(G.gameOver)return;
+      log(!G.players[nm].alive ? `${nm} eliminated — skip` : `${nm} no cards — skip`);
+      stepSubRaw(); checked++;
+      if(G.gameOver) return;
     }
   }
   render();
 }
+function stepPairIdx() { G.pairIdx=(G.pairIdx+1)%TURN_PAIRS.length; }
+function stepSubRaw()  { if(G.subTurn===0){G.subTurn=1;}else{G.subTurn=0;G.pairIdx=(G.pairIdx+1)%TURN_PAIRS.length;} }
 
-function stepPairIdx(){
-  // Just advance the fallback pair index without triggering new-round logic
-  G.pairIdx=(G.pairIdx+1)%TURN_PAIRS.length;
-}
-
-function stepSubRaw(){
-  // Advance sub-turn index; don't trigger new-round check (advanceTurn handles it)
-  if(G.subTurn===0){G.subTurn=1;}
-  else{G.subTurn=0;G.pairIdx=(G.pairIdx+1)%TURN_PAIRS.length;}
-}
-
-function stepSub(){
+function startNewRound() {
+  G.tokenRing=0; G.tokenSec=0;
+  G.tokenColor = Math.random()<.5?'BLACK':'WHITE';
+  // Advance to next player in sequence (don't hard-reset to pair 0)
   stepSubRaw();
-}
-
-function startNewRound(){
-  G.tokenRing=0;G.tokenSec=0;
-  G.tokenColor=Math.random()<.5?'BLACK':'WHITE';
-  G.pairIdx=0;G.subTurn=0;G.currentSectorPlayer=null;
-  for(const p of Object.values(G.players)){if(p.alive)p.hand=rndCards(CFG.cards);}
+  G.currentSectorPlayer=null;
+  for(const p of Object.values(G.players)) if(p.alive) p.hand=rndCards(CFG.cards);
   log(`— New round! Token: ${G.tokenColor} —`,'log-reset');
-  animToken();render();advanceTurn();
+  animToken(); render(); advanceTurn();
 }
 
-// ════════════════════════════════════════════════
-// PLAYING A CARD
-// ════════════════════════════════════════════════
-function playCard(playerName,card){
-  if(G.gameOver)return;
-  if(currentPlayerName()!==playerName)return;
-  const p=G.players[playerName];
-  if(!p.alive||!p.hand.includes(card))return;
+// ═══════════════════════════════════════════════════════
+// PLAYING A CARD — dialog routing + execution
+// ═══════════════════════════════════════════════════════
+function playCard(playerName, card) {
+  if(G.gameOver) return;
+  if(currentPlayerName()!==playerName) return;
+  const p = G.players[playerName];
+  if(!p.alive || !p.hand.includes(card)) return;
   clearHover();
-  if(card==='SIDE2'){pendingCard={playerName,card};document.getElementById('ov-side').classList.add('show');return;}
-  executeCard(playerName,card,null);
+
+  const def = CARDS[card];
+  if(def && def.needsDialog && def.needsDialog(G, playerName)){
+    pendingCard = {playerName, card};
+    openDialog(card, playerName);
+    return;
+  }
+  executeCard(playerName, card, null);
 }
-function resolveSide(dir){
+
+// Open the right dialog for cards that need one
+function openDialog(card, playerName) {
+  if(card==='SIDE2')  document.getElementById('ov-side').classList.add('show');
+  if(card==='CHOICE') document.getElementById('ov-choice').classList.add('show');
+  if(card==='TRAP')   enterTrapPlacingMode(playerName);
+}
+
+function enterTrapPlacingMode(playerName) {
+  trapPlacingMode = {playerName};
+  hoverTrapSec = null;
+  document.getElementById('board').classList.add('placing-trap');
+  document.getElementById('trap-hint').classList.add('show');
+}
+
+function cancelTrapPlacement() {
+  trapPlacingMode = null;
+  hoverTrapSec = null;
+  pendingCard = null;
+  document.getElementById('board').classList.remove('placing-trap');
+  document.getElementById('trap-hint').classList.remove('show');
+  render();
+}
+
+// Called by all dialog "confirm" buttons
+function resolvePending(extra) {
   document.getElementById('ov-side').classList.remove('show');
+  document.getElementById('ov-choice').classList.remove('show');
   hoverSideDir=null;
-  executeCard(pendingCard.playerName,pendingCard.card,dir);
+  if(!pendingCard) return;
+  const {playerName,card} = pendingCard;
   pendingCard=null;
+  executeCard(playerName, card, extra);
 }
 
-function executeCard(name,card,sideDir){
-  const wasAtCenter=G.tokenRing===0,prevSec=G.tokenSec;
-  const hasRot=['OUT1CW','OUT1CCW','IN1CW','IN1CCW'].includes(card);
-  applyCard(name,card,sideDir);
-  const atCenter=G.tokenRing===0,rotFizzled=hasRot&&atCenter,sideFizzled=card==='SIDE2'&&wasAtCenter;
+// Core execution
+function executeCard(name, card, extra) {
+  const def = CARDS[card];
+  if(!def) return;
 
-  if(CFG.centerFlip&&atCenter&&!sideFizzled){
-    const prev=G.tokenColor; G.tokenColor=prev==='BLACK'?'WHITE':'BLACK';
-    log(`${name}: ${CARD_ICONS[card]} ${card} — token flipped to ${G.tokenColor}!`,'log-reset');
-  }else if(sideFizzled){log(`${name}: ${CARD_ICONS[card]} ${card} — fizzled (at center)`,'log-reset');}
-  else if(rotFizzled){log(`${name}: ${CARD_ICONS[card]} ${card} — rotation fizzled`);}
-  else{log(`${name}: ${CARD_ICONS[card]} ${card}${sideDir?' ('+sideDir+')':''}`);}
+  const prevSec    = G.tokenSec;
+  const wasCenter  = G.tokenRing===0;
+  const hasRot     = ['OUT1CW','OUT1CCW','IN1CW','IN1CCW'].includes(card);
 
-  animToken();
+  // Run the card's onPlay against game state
+  def.onPlay(G, name, extra);
 
-  // Sector-order draw
-  if(CFG.turnOrder==='sector'&&prevSec!==0&&G.tokenSec!==prevSec){
-    for(const[nm,p]of Object.entries(G.players)){
-      if(p.sec===prevSec&&p.alive){const d=rndCards(1);p.hand.push(...d);log(`${nm} draws ${d[0]}`);break;}
+  // Remove from hand
+  removeCardFromHand(name, card);
+
+  const atCenter    = G.tokenRing===0;
+  const rotFizzled  = hasRot && atCenter;
+  const sideFizzled = card==='SIDE2' && wasCenter;
+
+  // Log
+  const icon = def.icon;
+  if     (sideFizzled)                      log(`${name}: ${icon} ${card} — fizzled (at center)`, 'log-reset');
+  else if(rotFizzled)                       log(`${name}: ${icon} ${card} — rotation fizzled`);
+  else if(card==='COLORSWAP')               log(`${name}: ${icon} ${card} — token is now ${G.tokenColor}!`, 'log-reset');
+  else if(card==='DRAW2')                   log(`${name}: ${icon} ${card} — draws 2 cards`);
+  else if(card==='TRAP')                    log(`${name}: ${icon} ${card} — trap placed at sector ${extra.sec} ring ${extra.ring}!`, 'log-reset');
+  else if(CFG.centerFlip && atCenter)       { G.tokenColor=G.tokenColor==='BLACK'?'WHITE':'BLACK'; log(`${name}: ${icon} ${card} — token flipped to ${G.tokenColor}!`,'log-reset'); }
+  else                                      log(`${name}: ${icon} ${card}${extra && typeof extra==='string'?' ('+extra+')':''}`);
+
+  // Handle DRAW2 side effect
+  if(card==='DRAW2' && G._draw2Player){
+    const drawn = rndCards(2);
+    G.players[G._draw2Player].hand.push(...drawn);
+    log(`${name} drew: ${drawn.join(', ')}`,'log-heal');
+    delete G._draw2Player;
+  }
+
+  // Sector-order draw-on-leave
+  if(CFG.turnOrder==='sector' && prevSec!==0 && G.tokenSec!==prevSec){
+    for(const [nm,p] of Object.entries(G.players)){
+      if(p.sec===prevSec && p.alive){ const d=rndCards(1); p.hand.push(...d); log(`${nm} draws ${d[0]}`); break; }
     }
     G.currentSectorPlayer=null;
   }
 
-  if(G.tokenRing>=4){resolveHit();return;}
-  finishMove(card,sideDir);
-}
+  animToken();
 
-function resolveHit(){
-  const sec=G.tokenSec;
-  let hitName=null;
-  for(const[nm,p]of Object.entries(G.players)){if(p.sec===sec){hitName=nm;break;}}
-  if(hitName){
-    const p=G.players[hitName],same=p.team===G.tokenColor;
-    if(same){
-      if(!p.alive){p.alive=true;p.hp=1;log(`♥ ${G.tokenColor}→${hitName} REVIVED!`,'log-heal');}
-      else if(p.hp<CFG.hp){p.hp++;log(`♥ ${G.tokenColor}→${hitName} healed HP=${p.hp}`,'log-heal');}
-      else log(`♥ ${G.tokenColor}→${hitName} already full HP`);
-    }else{
-      if(p.alive){p.hp--;
-        if(p.hp<=0){p.hp=0;p.alive=false;log(`💥 ${G.tokenColor}→${hitName} ELIMINATED!`,'log-dmg');}
-        else log(`💥 ${G.tokenColor}→${hitName} HP=${p.hp}`,'log-dmg');
-      }else log(`Token hit ${hitName} — already out`);
+  // Check traps before checking outer-ring hit
+  if(G.tokenRing>=1 && G.tokenRing<=3 && G.tokenSec>0 && G.traps){
+    const trapKey = `${G.tokenSec}:${G.tokenRing}`;
+    if(G.traps[trapKey]){
+      resolveTrap(trapKey, name); // pass mover name
+      if(G.gameOver) return;
     }
-  }else log(`Token crossed outer ring — sector ${sec}, empty`);
-  checkTeamElim();
-  if(G.gameOver){render();if(netMode!=='local')broadcastState('move');showWin();return;}
-  render();
-  if(netMode!=='local')broadcastState('move');
-  setTimeout(startNewRound,800);
+  }
+
+  if(G.tokenRing>=4){ resolveHit(); return; }
+  finishMove();
 }
 
-function finishMove(){
-  stepSub();
-  if(netMode!=='local')broadcastState('move');
-  render();advanceTurn();
-}
+// ═══════════════════════════════════════════════════════
+// HIT RESOLUTION (outer ring + traps)
+// ═══════════════════════════════════════════════════════
 
-function checkTeamElim(){
-  if(CFG.mode==='1v5'){
-    const alive=Object.entries(G.players).filter(([,p])=>p.alive);
-    if(alive.length===1){G.gameOver=true;G.winner=alive[0][0];
-      document.getElementById('win-msg').textContent=`${alive[0][0]} wins!`;
-      document.getElementById('win-sub').textContent='Last player standing';}
-    else if(alive.length===0){G.gameOver=true;G.winner='draw';
-      document.getElementById('win-msg').textContent='Draw!';
-      document.getElementById('win-sub').textContent='All eliminated';}
-  }else{
-    const wDead=['WL','WC','WR'].every(n=>!G.players[n].alive);
-    const bDead=['BL','BC','BR'].every(n=>!G.players[n].alive);
-    if(wDead||bDead){G.gameOver=true;G.winner=wDead?'BLACK':'WHITE';
-      document.getElementById('win-msg').textContent=`Team ${G.winner} wins!`;
-      document.getElementById('win-sub').textContent='Opposing team eliminated';}
+// Apply heal/damage to a named player based on token color vs reference color.
+// referenceColor: the color being compared against (token color for outer hits, trapColor for traps)
+function applyHitEffect(targetName, tokenColor, referenceColor, label) {
+  const p = G.players[targetName];
+  const heals = tokenColor === referenceColor;
+  if(heals){
+    if(!p.alive){ p.alive=true; p.hp=1; log(`♥ ${label} REVIVED!`,'log-heal'); }
+    else if(p.hp<CFG.hp){ p.hp++; log(`♥ ${label} healed HP=${p.hp}`,'log-heal'); }
+    else log(`♥ ${label} already full HP`);
+  } else {
+    if(p.alive){
+      p.hp--;
+      if(p.hp<=0){ p.hp=0; p.alive=false; log(`💥 ${label} ELIMINATED!`,'log-dmg'); }
+      else log(`💥 ${label} HP=${p.hp}`,'log-dmg');
+    } else {
+      log(`${label} — already eliminated`);
+    }
   }
 }
-function showWin(){document.getElementById('win-overlay').classList.add('show');}
 
-// ════════════════════════════════════════════════
-// CANVAS
-// ════════════════════════════════════════════════
-const CS=840,CX=420,CY=420,RING_R=[0,105,200,295,370];
-let tokenAnim={x:CX,y:CY,tx:CX,ty:CY};
-function secXY(sec,ring){
-  if(ring===0||sec===0)return{x:CX,y:CY};
-  const r=Math.min(ring,3),ang=toRad(SEC_ANGLE[sec]);
-  return{x:CX+(RING_R[r]-30)*Math.cos(ang),y:CY+(RING_R[r]-30)*Math.sin(ang)};
-}
-function animToken(){const p=secXY(G.tokenSec,G.tokenRing);tokenAnim.tx=p.x;tokenAnim.ty=p.y;}
-function initCanvas(){tokenAnim={x:CX,y:CY,tx:CX,ty:CY};requestAnimationFrame(drawLoop);}
-function drawLoop(){
-  const dx=tokenAnim.tx-tokenAnim.x,dy=tokenAnim.ty-tokenAnim.y;
-  if(Math.abs(dx)+Math.abs(dy)>0.8){tokenAnim.x+=dx*0.12;tokenAnim.y+=dy*0.12;}
-  else{tokenAnim.x=tokenAnim.tx;tokenAnim.y=tokenAnim.ty;}
-  drawBoard();requestAnimationFrame(drawLoop);
+// Trap: triggered by `moverName` stepping on trapKey cell.
+// Effect applies to the mover: token color vs trap color → heal if match, damage if not.
+function resolveTrap(trapKey, moverName) {
+  const trap = G.traps[trapKey];
+  if(!trap) return;
+  const label = `⚑ TRAP(${trap.owner}·${trap.trapColor})→${moverName}`;
+  applyHitEffect(moverName, G.tokenColor, trap.trapColor, label);
+  delete G.traps[trapKey];
+  checkTeamElim();
+  if(G.gameOver){ render(); if(netMode!=='local') broadcastState('move'); showWin(); }
 }
 
-function drawBoard(){
-  const canvas=document.getElementById('board'),ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,CS,CS);if(!G)return;
-  const activeName=!G.gameOver?currentPlayerName():null;
-  const activeSec=activeName?G.players[activeName].sec:null;
+function resolveHit() {
+  const sec = G.tokenSec;
+  const entry = Object.entries(G.players).find(([,p])=>p.sec===sec);
+  if(entry){
+    // Outer ring: token color vs the hit player's team color
+    applyHitEffect(entry[0], G.tokenColor, G.players[entry[0]].team, `${G.tokenColor}→${entry[0]}`);
+  } else {
+    log(`Token crossed outer ring — sector ${sec}, empty`);
+  }
+  checkTeamElim();
+  if(G.gameOver){ render(); if(netMode!=='local') broadcastState('move'); showWin(); return; }
+  render();
+  if(netMode!=='local') broadcastState('move');
+  setTimeout(startNewRound, 800);
+}
+
+function finishMove() {
+  stepSubRaw();
+  if(netMode!=='local') broadcastState('move');
+  render(); advanceTurn();
+}
+
+function checkTeamElim() {
+  if(CFG.mode==='1v5'){
+    const alive = Object.entries(G.players).filter(([,p])=>p.alive);
+    if(alive.length===1){ G.gameOver=true; G.winner=alive[0][0]; document.getElementById('win-msg').textContent=`${alive[0][0]} wins!`; document.getElementById('win-sub').textContent='Last player standing'; }
+    else if(alive.length===0){ G.gameOver=true; G.winner='draw'; document.getElementById('win-msg').textContent='Draw!'; document.getElementById('win-sub').textContent='All eliminated'; }
+  } else {
+    const wDead = ['WL','WC','WR'].every(n=>!G.players[n].alive);
+    const bDead = ['BL','BC','BR'].every(n=>!G.players[n].alive);
+    if(wDead||bDead){ G.gameOver=true; G.winner=wDead?'BLACK':'WHITE';
+      document.getElementById('win-msg').textContent=`Team ${G.winner} wins!`;
+      document.getElementById('win-sub').textContent='Opposing team eliminated'; }
+  }
+}
+function showWin() { document.getElementById('win-overlay').classList.add('show'); }
+
+// ═══════════════════════════════════════════════════════
+// CANVAS / DRAWING
+// ═══════════════════════════════════════════════════════
+const CS=840, CX=420, CY=420, RING_R=[0,105,200,295,370];
+let tokenAnim = {x:CX, y:CY, tx:CX, ty:CY};
+
+function secXY(sec,ring) {
+  if(ring===0||sec===0) return {x:CX,y:CY};
+  const r=Math.min(ring,3), ang=toRad(SEC_ANGLE[sec]);
+  return {x:CX+(RING_R[r]-30)*Math.cos(ang), y:CY+(RING_R[r]-30)*Math.sin(ang)};
+}
+function animToken() { const p=secXY(G.tokenSec,G.tokenRing); tokenAnim.tx=p.x; tokenAnim.ty=p.y; }
+function initCanvas() {
+  tokenAnim={x:CX,y:CY,tx:CX,ty:CY};
+  const canvas = document.getElementById('board');
+  // Mouse events for trap placement
+  canvas.addEventListener('mousemove', onCanvasMouseMove);
+  canvas.addEventListener('click',     onCanvasClick);
+  canvas.addEventListener('mouseleave',()=>{ hoverTrapSec=null; });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && trapPlacingMode) cancelTrapPlacement(); });
+  requestAnimationFrame(drawLoop);
+}
+
+// Convert canvas mouse position → {sec, ring} cell or null
+function canvasEventToCell(e) {
+  const canvas = document.getElementById('board');
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = CS / rect.width, scaleY = CS / rect.height;
+  const mx = (e.clientX - rect.left) * scaleX - CX;
+  const my = (e.clientY - rect.top)  * scaleY - CY;
+  const dist = Math.sqrt(mx*mx + my*my);
+  if(dist < RING_R[0]+18 || dist > RING_R[4]) return null; // center or outside
+  // Determine ring (1–3 only; ring 4 = outer edge, not placeable)
+  let ring = null;
+  if     (dist >= RING_R[0] && dist < RING_R[1]) ring = null; // inside inner ring = center area
+  else if(dist >= RING_R[1] && dist < RING_R[2]) ring = 1;
+  else if(dist >= RING_R[2] && dist < RING_R[3]) ring = 2;
+  else if(dist >= RING_R[3] && dist < RING_R[4]) ring = 3;
+  if(ring === null) return null;
+  // Determine sector from angle
+  let deg = Math.atan2(my, mx) * 180/Math.PI + 90;
+  if(deg < 0) deg += 360;
+  for(let s=1;s<=6;s++){
+    const diff = ((deg - SEC_ANGLE[s] + 180 + 360) % 360) - 180;
+    if(Math.abs(diff) <= 30) return {sec:s, ring};
+  }
+  return null;
+}
+
+function onCanvasMouseMove(e) {
+  if(!trapPlacingMode) return;
+  hoverTrapSec = canvasEventToCell(e); // now {sec,ring} or null
+}
+
+function onCanvasClick(e) {
+  if(!trapPlacingMode) return;
+  const cell = canvasEventToCell(e);
+  if(!cell) return;
+  const key = `${cell.sec}:${cell.ring}`;
+  if(G.traps && G.traps[key]){ log('⚑ That cell already has a trap — choose another'); return; }
+  // Exit placing mode
+  trapPlacingMode=null; hoverTrapSec=null;
+  document.getElementById('board').classList.remove('placing-trap');
+  document.getElementById('trap-hint').classList.remove('show');
+  const saved = pendingCard; pendingCard=null;
+  executeCard(saved.playerName, saved.card, cell);
+}
+function drawLoop() {
+  const dx=tokenAnim.tx-tokenAnim.x, dy=tokenAnim.ty-tokenAnim.y;
+  if(Math.abs(dx)+Math.abs(dy)>0.8){ tokenAnim.x+=dx*0.12; tokenAnim.y+=dy*0.12; }
+  else { tokenAnim.x=tokenAnim.tx; tokenAnim.y=tokenAnim.ty; }
+  drawBoard(); requestAnimationFrame(drawLoop);
+}
+
+function drawBoard() {
+  const canvas=document.getElementById('board'), ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,CS,CS);
+  if(!G) return;
+  const activeName = !G.gameOver ? currentPlayerName() : null;
+  const activeSec  = activeName ? G.players[activeName].sec : null;
+
   // Sector fills
   for(let s=1;s<=6;s++){
-    const isW=WHITE_SECS.has(s),isAct=s===activeSec;
-    const sR=toRad(SEC_ANGLE[s]-30),eR=toRad(SEC_ANGLE[s]+30);
-    ctx.beginPath();ctx.moveTo(CX,CY);ctx.arc(CX,CY,RING_R[4],sR,eR);ctx.closePath();
-    ctx.fillStyle=isAct?(isW?'rgba(235,218,168,0.42)':'rgba(80,110,175,0.42)'):(isW?'rgba(220,208,180,0.16)':'rgba(22,18,10,0.50)');
-    ctx.fill();if(isAct){ctx.strokeStyle='rgba(200,150,58,0.4)';ctx.lineWidth=2;ctx.stroke();}
+    const isW=WHITE_SECS.has(s), isAct=s===activeSec;
+    const sR=toRad(SEC_ANGLE[s]-30), eR=toRad(SEC_ANGLE[s]+30);
+    ctx.beginPath(); ctx.moveTo(CX,CY); ctx.arc(CX,CY,RING_R[4],sR,eR); ctx.closePath();
+    ctx.fillStyle = isAct ? (isW?'rgba(235,218,168,0.42)':'rgba(80,110,175,0.42)') : (isW?'rgba(220,208,180,0.16)':'rgba(22,18,10,0.50)');
+    ctx.fill();
+    if(isAct){ ctx.strokeStyle='rgba(200,150,58,0.4)'; ctx.lineWidth=2; ctx.stroke(); }
   }
+
   // Rings
-  for(let r=4;r>=1;r--){ctx.beginPath();ctx.arc(CX,CY,RING_R[r],0,Math.PI*2);ctx.strokeStyle=r===4?'rgba(120,100,70,0.85)':'rgba(120,100,70,0.3)';ctx.lineWidth=r===4?2.5:1;ctx.stroke();}
+  for(let r=4;r>=1;r--){
+    ctx.beginPath(); ctx.arc(CX,CY,RING_R[r],0,Math.PI*2);
+    ctx.strokeStyle = r===4 ? 'rgba(120,100,70,0.85)' : 'rgba(120,100,70,0.3)';
+    ctx.lineWidth   = r===4 ? 2.5 : 1; ctx.stroke();
+  }
+
   // Center dot
-  ctx.beginPath();ctx.arc(CX,CY,18,0,Math.PI*2);ctx.fillStyle='#1e1a12';ctx.fill();ctx.strokeStyle='rgba(120,100,70,0.5)';ctx.lineWidth=1;ctx.stroke();
-  // Sector lines
-  for(let i=0;i<6;i++){const a=toRad(i*60-30);ctx.beginPath();ctx.moveTo(CX,CY);ctx.lineTo(CX+RING_R[4]*Math.cos(a),CY+RING_R[4]*Math.sin(a));ctx.strokeStyle='rgba(120,100,60,0.3)';ctx.lineWidth=1;ctx.stroke();}
-  // Team divider
-  ctx.beginPath();ctx.moveTo(CX-RING_R[4]-5,CY);ctx.lineTo(CX+RING_R[4]+5,CY);ctx.strokeStyle='rgba(180,150,90,0.55)';ctx.lineWidth=2;ctx.setLineDash([8,5]);ctx.stroke();ctx.setLineDash([]);
-  // Token cell highlight
-  if(G.tokenSec>0&&G.tokenRing>=1&&G.tokenRing<=3){
-    const s=G.tokenSec,r=G.tokenRing,sR=toRad(SEC_ANGLE[s]-30),eR=toRad(SEC_ANGLE[s]+30);
-    ctx.beginPath();ctx.arc(CX,CY,RING_R[r],sR,eR);ctx.arc(CX,CY,RING_R[r-1],eR,sR,true);ctx.closePath();
-    ctx.fillStyle=G.tokenColor==='BLACK'?'rgba(200,150,58,0.12)':'rgba(255,255,200,0.09)';ctx.fill();
-    ctx.strokeStyle=G.tokenColor==='BLACK'?'rgba(200,150,58,0.25)':'rgba(220,210,160,0.25)';ctx.lineWidth=1;ctx.stroke();
+  ctx.beginPath(); ctx.arc(CX,CY,18,0,Math.PI*2);
+  ctx.fillStyle='#1e1a12'; ctx.fill(); ctx.strokeStyle='rgba(120,100,70,0.5)'; ctx.lineWidth=1; ctx.stroke();
+
+  // Sector divider lines
+  for(let i=0;i<6;i++){
+    const a=toRad(i*60-30);
+    ctx.beginPath(); ctx.moveTo(CX,CY); ctx.lineTo(CX+RING_R[4]*Math.cos(a),CY+RING_R[4]*Math.sin(a));
+    ctx.strokeStyle='rgba(120,100,60,0.3)'; ctx.lineWidth=1; ctx.stroke();
   }
+
+  // Team divider (horizontal)
+  ctx.beginPath(); ctx.moveTo(CX-RING_R[4]-5,CY); ctx.lineTo(CX+RING_R[4]+5,CY);
+  ctx.strokeStyle='rgba(180,150,90,0.55)'; ctx.lineWidth=2; ctx.setLineDash([8,5]); ctx.stroke(); ctx.setLineDash([]);
+
+  // Active token cell highlight
+  if(G.tokenSec>0 && G.tokenRing>=1 && G.tokenRing<=3){
+    const s=G.tokenSec, r=G.tokenRing, sR=toRad(SEC_ANGLE[s]-30), eR=toRad(SEC_ANGLE[s]+30);
+    ctx.beginPath(); ctx.arc(CX,CY,RING_R[r],sR,eR); ctx.arc(CX,CY,RING_R[r-1],eR,sR,true); ctx.closePath();
+    ctx.fillStyle   = G.tokenColor==='BLACK'?'rgba(200,150,58,0.12)':'rgba(255,255,200,0.09)'; ctx.fill();
+    ctx.strokeStyle = G.tokenColor==='BLACK'?'rgba(200,150,58,0.25)':'rgba(220,210,160,0.25)'; ctx.lineWidth=1; ctx.stroke();
+  }
+
+  // Draw traps on the board — positioned at their exact sec:ring cell
+  if(G.traps){
+    for(const [key, trap] of Object.entries(G.traps)){
+      const isW = trap.trapColor==='WHITE';
+      const ang = toRad(SEC_ANGLE[trap.sec]);
+      const r   = (RING_R[trap.ring] + RING_R[trap.ring-1]) / 2; // midpoint of that ring band
+      const tx  = CX + r*Math.cos(ang), ty = CY + r*Math.sin(ang);
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=10;
+      const badgeR = 13;
+      ctx.beginPath(); ctx.arc(tx,ty,badgeR,0,Math.PI*2);
+      ctx.fillStyle = isW ? 'rgba(220,205,165,0.92)' : 'rgba(55,88,158,0.88)';
+      ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.strokeStyle = isW ? 'rgba(200,180,130,0.9)' : 'rgba(100,150,220,0.9)';
+      ctx.lineWidth=1.5; ctx.stroke();
+      ctx.font='bold 11px Space Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle = isW ? '#3a2e18' : '#d8ecff';
+      ctx.fillText('⚑', tx, ty);
+      ctx.restore();
+    }
+  }
+
+  // Trap placement mode — highlight hovered cell (ring band + sector wedge)
+  if(trapPlacingMode){
+    const hov = hoverTrapSec; // {sec,ring} or null
+    // Dim overlay over whole board to guide attention
+    ctx.save();
+    ctx.beginPath(); ctx.arc(CX,CY,RING_R[4],0,Math.PI*2);
+    ctx.fillStyle='rgba(0,0,0,0.18)'; ctx.fill();
+    ctx.restore();
+    // Draw ring-band × sector outlines for rings 1–3
+    for(let r=1;r<=3;r++){
+      for(let s=1;s<=6;s++){
+        const isHov = hov && hov.sec===s && hov.ring===r;
+        const key = `${s}:${r}`;
+        const hasTrap = G.traps && G.traps[key];
+        const sR=toRad(SEC_ANGLE[s]-30), eR=toRad(SEC_ANGLE[s]+30);
+        ctx.save();
+        // Cell arc path
+        ctx.beginPath();
+        ctx.arc(CX,CY,RING_R[r],sR,eR);
+        ctx.arc(CX,CY,RING_R[r-1],eR,sR,true);
+        ctx.closePath();
+        if(hasTrap){
+          ctx.fillStyle='rgba(200,80,80,0.15)'; ctx.fill();
+        } else if(isHov){
+          ctx.fillStyle='rgba(200,145,58,0.32)'; ctx.fill();
+          ctx.strokeStyle='rgba(200,145,58,0.85)'; ctx.lineWidth=2; ctx.stroke();
+          // Ghost trap badge in hovered cell — colored by placing player's team
+          const placerTeam = pendingCard ? G.players[pendingCard.playerName].team : 'WHITE';
+          const isPlacerW  = placerTeam==='WHITE';
+          const gAng = toRad(SEC_ANGLE[s]);
+          const gr   = (RING_R[r] + RING_R[r-1]) / 2;
+          const gx   = CX + gr*Math.cos(gAng), gy = CY + gr*Math.sin(gAng);
+          ctx.beginPath(); ctx.arc(gx,gy,14,0,Math.PI*2);
+          ctx.fillStyle = isPlacerW ? 'rgba(220,205,165,0.55)' : 'rgba(55,88,158,0.55)';
+          ctx.fill();
+          ctx.strokeStyle = isPlacerW ? 'rgba(200,180,130,0.7)' : 'rgba(100,150,220,0.7)';
+          ctx.lineWidth=1.5; ctx.stroke();
+          ctx.font='bold 12px Space Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillStyle = isPlacerW ? 'rgba(58,46,24,0.8)' : 'rgba(216,236,255,0.8)';
+          ctx.fillText('⚑', gx, gy);
+        } else {
+          ctx.fillStyle='rgba(200,145,58,0.05)'; ctx.fill();
+          ctx.strokeStyle='rgba(200,145,58,0.15)'; ctx.lineWidth=1; ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+  }
+
   // Hover preview
-  if(hoverCard&&activeName){
-    if(hoverCard==='SIDE2'){const dirs=hoverSideDir?[hoverSideDir]:['cw','ccw'];for(const d of dirs)drawPreview(ctx,activeName,'SIDE2',d,simulateCard(activeName,'SIDE2',d),d==='cw'?'rgba(100,180,255,0.75)':'rgba(255,180,100,0.75)');}
-    else drawPreview(ctx,activeName,hoverCard,null,simulateCard(activeName,hoverCard,null),'rgba(200,150,58,0.8)');
+  if(hoverCard && activeName) drawCardPreview(ctx, activeName, hoverCard, hoverSideDir);
+
+  // Player dots on outer ring
+  for(const [nm,def] of Object.entries(SECTORS)){
+    const p=G.players[nm], ang=toRad(def.angle), r=RING_R[3]+32;
+    const px=CX+r*Math.cos(ang), py=CY+r*Math.sin(ang);
+    const isW=def.team==='WHITE', isAct=nm===activeName;
+    ctx.beginPath(); ctx.arc(px,py,isAct?11:8,0,Math.PI*2);
+    ctx.fillStyle = !p.alive?'rgba(80,70,60,0.35)' : isAct?(isW?'rgba(245,228,175,0.98)':'rgba(105,145,215,0.98)') : (isW?'rgba(220,200,160,0.6)':'rgba(80,110,160,0.6)');
+    ctx.fill();
+    ctx.strokeStyle = isAct?'#c8963a' : (isW?'rgba(220,200,160,0.9)':'rgba(100,140,200,0.9)');
+    ctx.lineWidth=isAct?2.5:1.5; ctx.stroke();
+    if(!p.alive){ ctx.strokeStyle='rgba(180,60,60,0.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(px-5,py-5); ctx.lineTo(px+5,py+5); ctx.moveTo(px+5,py-5); ctx.lineTo(px-5,py+5); ctx.stroke(); }
+    if(p.alive&&p.hp<CFG.hp){ ctx.beginPath(); ctx.arc(px+(isAct?7:5),py-(isAct?7:5),4,0,Math.PI*2); ctx.fillStyle='rgba(200,80,80,0.95)'; ctx.fill(); }
   }
-  // Player dots
-  for(const[nm,def]of Object.entries(SECTORS)){
-    const p=G.players[nm],ang=toRad(def.angle),r=RING_R[3]+32;
-    const px=CX+r*Math.cos(ang),py=CY+r*Math.sin(ang);
-    const isW=def.team==='WHITE',isAct=nm===activeName;
-    ctx.beginPath();ctx.arc(px,py,isAct?11:8,0,Math.PI*2);
-    ctx.fillStyle=!p.alive?'rgba(80,70,60,0.35)':isAct?(isW?'rgba(245,228,175,0.98)':'rgba(105,145,215,0.98)'):(isW?'rgba(220,200,160,0.6)':'rgba(80,110,160,0.6)');
-    ctx.fill();ctx.strokeStyle=isAct?'#c8963a':(isW?'rgba(220,200,160,0.9)':'rgba(100,140,200,0.9)');ctx.lineWidth=isAct?2.5:1.5;ctx.stroke();
-    if(!p.alive){ctx.strokeStyle='rgba(180,60,60,0.8)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(px-5,py-5);ctx.lineTo(px+5,py+5);ctx.moveTo(px+5,py-5);ctx.lineTo(px-5,py+5);ctx.stroke();}
-    if(p.alive&&p.hp<CFG.hp){ctx.beginPath();ctx.arc(px+(isAct?7:5),py-(isAct?7:5),4,0,Math.PI*2);ctx.fillStyle='rgba(200,80,80,0.95)';ctx.fill();}
-  }
+
   // Ring labels
-  ctx.font='bold 13px Space Mono,monospace';ctx.textAlign='center';ctx.fillStyle='rgba(120,100,70,0.25)';
-  ['','INNER','MIDDLE','OUTER'].forEach((l,r)=>{if(r>0){const m=(RING_R[r]+RING_R[r-1])/2;ctx.fillText(l,CX-m*0.72,CY+5);}});
-  // Team labels
+  ctx.font='bold 13px Space Mono,monospace'; ctx.textAlign='center'; ctx.fillStyle='rgba(120,100,70,0.25)';
+  ['','INNER','MIDDLE','OUTER'].forEach((l,r)=>{ if(r>0){ const m=(RING_R[r]+RING_R[r-1])/2; ctx.fillText(l,CX-m*0.72,CY+5); } });
   ctx.font='bold 14px Space Mono,monospace';
-  ctx.fillStyle='rgba(210,195,165,0.38)';ctx.fillText('WHITE TEAM',CX,CY-RING_R[4]+18);
-  ctx.fillStyle='rgba(90,120,165,0.38)';ctx.fillText('BLACK TEAM',CX,CY+RING_R[4]-6);
-  drawToken(ctx,tokenAnim.x,tokenAnim.y,G.tokenColor,1.0);
+  ctx.fillStyle='rgba(210,195,165,0.38)'; ctx.fillText('WHITE TEAM',CX,CY-RING_R[4]+18);
+  ctx.fillStyle='rgba(90,120,165,0.38)';  ctx.fillText('BLACK TEAM',CX,CY+RING_R[4]-6);
+
+  drawToken(ctx, tokenAnim.x, tokenAnim.y, G.tokenColor, 1.0);
 }
 
-function drawPreview(ctx,playerName,card,sideDir,sim,color){
+// Preview arrow for card hover
+function drawCardPreview(ctx, playerName, card, sideDir) {
+  // Cards that don't move token — no visual needed
+  if(card==='COLORSWAP'||card==='DRAW2'||card==='TRAP') return;
+
+  const sim = simulateCard(playerName, card, sideDir);
   ctx.save();
-  const fx=tokenAnim.x,fy=tokenAnim.y,isHit=sim.tokenRing>=4;
-  const isCombo=['OUT1CW','OUT1CCW','IN1CW','IN1CCW'].includes(card),isSide=card==='SIDE2';
-  const hitColor='rgba(200,80,80,0.8)';
-  let tx,ty;
-  if(isHit){const a=toRad(SEC_ANGLE[sim.tokenSec]||0);tx=CX+(RING_R[4]+5)*Math.cos(a);ty=CY+(RING_R[4]+5)*Math.sin(a);}
-  else{const p=secXY(sim.tokenSec,sim.tokenRing);tx=p.x;ty=p.y;}
-  function arrow(x,y,ang,col,hit){const L=16;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-L*Math.cos(ang-0.38),y-L*Math.sin(ang-0.38));ctx.lineTo(x-L*Math.cos(ang+0.38),y-L*Math.sin(ang+0.38));ctx.closePath();ctx.fillStyle=hit?hitColor:col;ctx.fill();}
-  function arcSeg(f,t,ring,col){const r=Math.min(ring,3),rad=RING_R[r]-30,fi=CW_RING.indexOf(f),ti=CW_RING.indexOf(t),cwS=(ti-fi+6)%6,ccwS=(fi-ti+6)%6,goCW=cwS<=ccwS;ctx.beginPath();ctx.arc(CX,CY,rad,toRad(SEC_ANGLE[f]),toRad(SEC_ANGLE[t]),!goCW);ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.setLineDash([8,5]);ctx.stroke();ctx.setLineDash([]);}
+  const fx=tokenAnim.x, fy=tokenAnim.y, isHit=sim.tokenRing>=4;
+  const color    = 'rgba(200,150,58,0.8)';
+  const hitColor = 'rgba(200,80,80,0.8)';
+  const isCombo  = ['OUT1CW','OUT1CCW','IN1CW','IN1CCW'].includes(card);
+  const isSide   = (card==='SIDE2'||card==='CHOICE') && (sideDir==='cw'||sideDir==='ccw');
+
+  let tx, ty;
+  if(isHit){ const a=toRad(SEC_ANGLE[sim.tokenSec]||0); tx=CX+(RING_R[4]+5)*Math.cos(a); ty=CY+(RING_R[4]+5)*Math.sin(a); }
+  else { const p=secXY(sim.tokenSec,sim.tokenRing); tx=p.x; ty=p.y; }
+
+  function arrow(x,y,ang,col,hit){
+    const L=16; ctx.beginPath(); ctx.moveTo(x,y);
+    ctx.lineTo(x-L*Math.cos(ang-0.38),y-L*Math.sin(ang-0.38));
+    ctx.lineTo(x-L*Math.cos(ang+0.38),y-L*Math.sin(ang+0.38));
+    ctx.closePath(); ctx.fillStyle=hit?hitColor:col; ctx.fill();
+  }
+  function arcSeg(f,t,ring,col){
+    const r=Math.min(ring,3), rad=RING_R[r]-30;
+    const fi=CW_RING.indexOf(f), ti=CW_RING.indexOf(t);
+    const cwS=(ti-fi+6)%6, ccwS=(fi-ti+6)%6, goCW=cwS<=ccwS;
+    ctx.beginPath(); ctx.arc(CX,CY,rad,toRad(SEC_ANGLE[f]),toRad(SEC_ANGLE[t]),!goCW);
+    ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.setLineDash([8,5]); ctx.stroke(); ctx.setLineDash([]);
+  }
+
   if(isCombo){
-    const p=G.players[playerName],own=p.team==='WHITE'?WHITE_SECS:BLACK_SECS;
-    const curSec=G.tokenRing===0?p.sec:G.tokenSec,curInOpp=!own.has(curSec);
-    let signed=curInOpp?G.tokenRing:-G.tokenRing,wasInOpp=curInOpp;
-    signed+=card.startsWith('OUT')?+1:-1;
+    // Show radial leg, then arc
+    const p2=G.players[playerName], own=p2.team==='WHITE'?WHITE_SECS:BLACK_SECS;
+    const curSec=G.tokenRing===0?p2.sec:G.tokenSec, curInOpp=!own.has(curSec);
+    let signed=curInOpp?G.tokenRing:-G.tokenRing, wasInOpp=curInOpp;
+    signed += card.startsWith('OUT')?+1:-1;
     let midRing,midSec;
-    if(signed>0){midRing=signed;midSec=!wasInOpp?OPP_SEC[curSec]:curSec;}
-    else if(signed<0){midRing=-signed;midSec=wasInOpp?OPP_SEC[curSec]:curSec;}
-    else{midRing=0;midSec=0;}
+    if(signed>0)      { midRing=signed; midSec=!wasInOpp?OPP_SEC[curSec]:curSec; }
+    else if(signed<0) { midRing=-signed; midSec=wasInOpp?OPP_SEC[curSec]:curSec; }
+    else              { midRing=0; midSec=0; }
     const mid=secXY(midSec,midRing);
-    ctx.setLineDash([10,5]);ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(mid.x,mid.y);ctx.stroke();ctx.setLineDash([]);
-    ctx.beginPath();ctx.arc(mid.x,mid.y,4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
-    if(midRing>0&&sim.tokenSec!==0&&midSec!==sim.tokenSec&&!isHit)arcSeg(midSec,sim.tokenSec,midRing,color);
-    if(isHit)arrow(tx,ty,Math.atan2(ty-fy,tx-fx),color,true);
-    else if(sim.tokenRing===0)arrow(mid.x,mid.y,Math.atan2(mid.y-fy,mid.x-fx),color,false);
+    ctx.setLineDash([10,5]); ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(mid.x,mid.y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(mid.x,mid.y,4,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+    if(midRing>0&&sim.tokenSec!==0&&midSec!==sim.tokenSec&&!isHit) arcSeg(midSec,sim.tokenSec,midRing,color);
+    if(isHit) arrow(tx,ty,Math.atan2(ty-fy,tx-fx),color,true);
+    else if(sim.tokenRing===0) arrow(mid.x,mid.y,Math.atan2(mid.y-fy,mid.x-fx),color,false);
     else arrow(tx,ty,toRad(SEC_ANGLE[sim.tokenSec])+(card.endsWith('CW')?Math.PI/2:-Math.PI/2),color,false);
-  }else if(isSide){
-    if(G.tokenRing>0&&G.tokenSec!==0){arcSeg(G.tokenSec,sim.tokenSec,G.tokenRing,color);arrow(tx,ty,toRad(SEC_ANGLE[sim.tokenSec])+(sideDir==='cw'?Math.PI/2:-Math.PI/2),color,false);}
-  }else{
-    ctx.setLineDash([10,6]);ctx.strokeStyle=isHit?hitColor:color;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(tx,ty);ctx.stroke();ctx.setLineDash([]);
+  } else if(isSide){
+    if(G.tokenRing>0&&G.tokenSec!==0){
+      arcSeg(G.tokenSec,sim.tokenSec,G.tokenRing,color);
+      arrow(tx,ty,toRad(SEC_ANGLE[sim.tokenSec])+(sideDir==='cw'?Math.PI/2:-Math.PI/2),color,false);
+    }
+  } else {
+    ctx.setLineDash([10,6]); ctx.strokeStyle=isHit?hitColor:color; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(fx,fy); ctx.lineTo(tx,ty); ctx.stroke(); ctx.setLineDash([]);
     arrow(tx,ty,Math.atan2(ty-fy,tx-fx),color,isHit);
   }
-  if(isHit){ctx.strokeStyle='rgba(220,80,80,0.85)';ctx.lineWidth=3.5;const s=14;ctx.beginPath();ctx.moveTo(tx-s,ty-s);ctx.lineTo(tx+s,ty+s);ctx.moveTo(tx+s,ty-s);ctx.lineTo(tx-s,ty+s);ctx.stroke();}
-  else if(sim.tokenRing>0)drawToken(ctx,tx,ty,G.tokenColor,0.32);
+  if(isHit){ ctx.strokeStyle='rgba(220,80,80,0.85)'; ctx.lineWidth=3.5; const s=14;
+    ctx.beginPath(); ctx.moveTo(tx-s,ty-s); ctx.lineTo(tx+s,ty+s); ctx.moveTo(tx+s,ty-s); ctx.lineTo(tx-s,ty+s); ctx.stroke(); }
+  else if(sim.tokenRing>0) drawToken(ctx,tx,ty,G.tokenColor,0.32);
   ctx.restore();
 }
 
 function drawToken(ctx,x,y,color,alpha){
-  ctx.save();ctx.globalAlpha=alpha;
-  ctx.beginPath();ctx.arc(x+3,y+4,20,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fill();
-  ctx.beginPath();ctx.arc(x,y,20,0,Math.PI*2);
-  ctx.fillStyle=color==='BLACK'?'#16120c':'#f0e8d0';ctx.strokeStyle=color==='BLACK'?'#c8963a':'#8a7850';ctx.lineWidth=2.5;ctx.fill();ctx.stroke();
-  ctx.beginPath();ctx.arc(x,y,11,0,Math.PI*2);ctx.strokeStyle=color==='BLACK'?'rgba(200,150,58,0.5)':'rgba(140,120,80,0.4)';ctx.lineWidth=1;ctx.stroke();
-  ctx.font='bold 10px Space Mono,monospace';ctx.textAlign='center';ctx.fillStyle=color==='BLACK'?'#c8963a':'#5a4a30';ctx.fillText(color==='BLACK'?'●':'○',x,y+4);ctx.restore();
+  ctx.save(); ctx.globalAlpha=alpha;
+  ctx.beginPath(); ctx.arc(x+3,y+4,20,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(x,y,20,0,Math.PI*2);
+  ctx.fillStyle=color==='BLACK'?'#16120c':'#f0e8d0'; ctx.strokeStyle=color==='BLACK'?'#c8963a':'#8a7850'; ctx.lineWidth=2.5; ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x,y,11,0,Math.PI*2); ctx.strokeStyle=color==='BLACK'?'rgba(200,150,58,0.5)':'rgba(140,120,80,0.4)'; ctx.lineWidth=1; ctx.stroke();
+  ctx.font='bold 10px Space Mono,monospace'; ctx.textAlign='center';
+  ctx.fillStyle=color==='BLACK'?'#c8963a':'#5a4a30'; ctx.fillText(color==='BLACK'?'●':'○',x,y+4);
+  ctx.restore();
 }
 
-// ════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // UI RENDER
-// ════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 function render(){
-  if(!G)return;
-  document.getElementById('c-token').textContent=G.tokenColor;
-  document.getElementById('c-ring').textContent=G.tokenRing===0?'CENTER':(RING_LABELS[G.tokenRing]||'OUT');
-  document.getElementById('c-sec').textContent=G.tokenSec===0?'—':G.tokenSec;
-  if(!G.gameOver){const nm=currentPlayerName(),col=G.players[nm].team==='WHITE'?'#d4c4a0':'#5a7aaa';document.getElementById('turn-msg').innerHTML=`<span style="color:${col}">${nm}</span> — play a card`;}
-  PANEL_ORDER.forEach((name,i)=>renderPCard(i,name));
+  if(!G) return;
+  document.getElementById('c-token').textContent = G.tokenColor;
+  document.getElementById('c-ring').textContent  = G.tokenRing===0?'CENTER':(RING_LABELS[G.tokenRing]||'OUT');
+  document.getElementById('c-sec').textContent   = G.tokenSec===0?'—':G.tokenSec;
+  if(!G.gameOver){
+    const nm=currentPlayerName(), col=G.players[nm].team==='WHITE'?'#d4c4a0':'#5a7aaa';
+    document.getElementById('turn-msg').innerHTML=`<span style="color:${col}">${nm}</span> — play a card`;
+  }
+  PANEL_ORDER.forEach((name,i) => renderPCard(i,name));
 }
-function renderPCard(idx,name){
-  const el=document.getElementById(`pc-${idx}`),p=G.players[name];
-  const isActive=!G.gameOver&&currentPlayerName()===name,isW=p.team==='WHITE';
+
+function renderPCard(idx, name){
+  const el=document.getElementById(`pc-${idx}`), p=G.players[name];
+  const isActive=!G.gameOver&&currentPlayerName()===name, isW=p.team==='WHITE';
   el.className=`pcard ${isW?'tw':'tb'}${isActive?' active':''}${!p.alive?' dead':''}`;
   let html=`<div class="pname">${name} · ${p.team}</div><div class="hp-row">`;
-  for(let i=0;i<CFG.hp;i++){const full=i<p.hp&&p.alive;html+=`<div class="pip ${full?(isW?'on-w':'on-b'):''}"></div>`;}
-  if(!p.alive)html+=`<span class="dead-tag">ELIM</span>`;
-  html+=`</div><div class="hand">`;
-  if(!p.hand.length){html+=`<div class="no-cards">— no cards —</div>`;}
-  else for(const card of p.hand){
-    const can=isActive&&p.alive;
-    html+=can?`<button class="crd play" title="${CARD_DESC[card]}" onmouseenter="setHover('${name}','${card}')" onmouseleave="clearHover()" onclick="playCard('${name}','${card}')">${CARD_ICONS[card]} ${card}</button>`:`<button class="crd" title="${CARD_DESC[card]}">${CARD_ICONS[card]} ${card}</button>`;
+  for(let i=0;i<CFG.hp;i++){
+    const full=i<p.hp&&p.alive;
+    html+=`<div class="pip ${full?(isW?'on-w':'on-b'):''}"></div>`;
   }
-  html+=`</div>`;el.innerHTML=html;
+  if(!p.alive) html+=`<span class="dead-tag">ELIM</span>`;
+  html+=`</div><div class="hand">`;
+  if(!p.hand.length){ html+=`<div class="no-cards">— no cards —</div>`; }
+  else for(const card of p.hand){
+    const def = CARDS[card]||{icon:card,desc:card};
+    const can = isActive && p.alive;
+    const trapClass = card==='TRAP' ? ' trap-card' : '';
+    html += can
+      ? `<button class="crd play${trapClass}" title="${def.desc}" onmouseenter="setHover('${name}','${card}')" onmouseleave="clearHover()" onclick="playCard('${name}','${card}')">${def.icon} ${card}</button>`
+      : `<button class="crd${trapClass}" title="${def.desc}">${def.icon} ${card}</button>`;
+  }
+  html+=`</div>`; el.innerHTML=html;
 }
-function setHover(n,c){hoverCard=c;hoverSideDir=null;}
-function setHoverSide(d){hoverSideDir=d;if(pendingCard)hoverCard='SIDE2';}
-function clearHover(){hoverCard=null;hoverSideDir=null;}
-function log(msg,cls=''){
-  const ul=document.getElementById('log-list'),li=document.createElement('li');
-  if(cls)li.className=cls;li.textContent=msg;ul.appendChild(li);
-  while(ul.children.length>40)ul.removeChild(ul.firstChild);
+
+// Hover helpers
+function setHover(n,c)    { hoverCard=c; hoverSideDir=null; }
+function setHoverSide(d)  { hoverSideDir=d; if(pendingCard) hoverCard=pendingCard.card; }
+function setHoverChoice(d){ hoverSideDir=d; if(pendingCard) hoverCard=pendingCard.card; }
+function clearHover()     { hoverCard=null; hoverSideDir=null; }
+
+function log(msg, cls=''){
+  const ul=document.getElementById('log-list'), li=document.createElement('li');
+  if(cls) li.className=cls; li.textContent=msg; ul.appendChild(li);
+  while(ul.children.length>40) ul.removeChild(ul.firstChild);
   ul.scrollTop=ul.scrollHeight;
 }
 </script>
